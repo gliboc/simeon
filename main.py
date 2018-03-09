@@ -43,7 +43,8 @@ class Repl(Cmd):
         'Stops the repl and closes it'
         print('Thank you for using Simeon')
         self.close()
-        bye()
+        self.postloop()
+        exit()
         return True
 
     # File handling methods
@@ -56,7 +57,7 @@ class Repl(Cmd):
     # Currently being used to have a persistent history.
     def preloop(self):
         if readline and os.path.exists(histfile):
-         readline.read_history_file(histfile)
+            readline.read_history_file(histfile)
 
     def postloop(self):
         if readline:
@@ -66,4 +67,3 @@ class Repl(Cmd):
 if __name__ == '__main__':
     Repl().preloop()
     Repl().cmdloop()
-    Repl().postloop()
