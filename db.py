@@ -1,20 +1,23 @@
-from collections import Counter
+import multiset
+from operators import merge_instances # used for cartesian product
+
 
 class Database():
     """a data structure supporting:
           - nothing"""
 
-    def __init__(self):
-        pass
+    def __init__(self, attributes=None, instance=None):
+        self.inst = instance
+        self.attr = attributes
 
-    def select():
-        pass
+    def select(self, arg):
+        if arg == '*':
+            return self.db
 
-    def project():
-        pass
-
-    def cartProduct():
-        pass
+    def cartesian_product(self, other):
+        attributes = self.attr + other.attr
+        instance = merge_instances(self.inst, other.inst)
+        return Database(attributes, instance) 
 
     def relation():
         pass
