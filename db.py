@@ -10,7 +10,7 @@ class Database():
         self.inst = instance
         self.attr = attributes
 
-    def select(self, arg):
+    def selection(self, arg):
         if arg == '*':
             return self.db
 
