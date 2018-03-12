@@ -11,4 +11,8 @@ let test () =
 
 test ();;
 
+
+
+
+
 write_to_csv (read_csv ("cars.csv")) "test.csv";;

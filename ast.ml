@@ -42,5 +42,9 @@ let count_attr data =
 	let attr = List.hd(data) in List.length attr
 
 
+let parse _ = Relation ([[]]);; 
+
+let exec _ = ();;
+
 
 
