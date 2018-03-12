@@ -1,6 +1,14 @@
-open Csv
+open Csv;;
+open Ast;;
+open Interpret;;
 
-let () = 
-  let ic = of_channel (open_in "cars.csv") in
-  let csv_file = input_all ic in
-  print csv_file;;
+
+let test () =
+  let ui = read_csv ("cars.csv") in
+  let op = Projection (Relation ui, ["Year"; "Model"]) in 
+  let c = eval op in 
+  print c ;;
+
+test ();;
+
+write_to_csv (read_csv ("cars.csv")) "test.csv";;
