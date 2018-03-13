@@ -1,0 +1,6 @@
+PKG csv
+
+# structure of the project
+S src
+
+B _build/src

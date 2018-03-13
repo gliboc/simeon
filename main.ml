@@ -1,13 +1,13 @@
-open Csv;;
-open Ast;;
-open Interpret;;
-open Pervasives;;
+open Csv
+open Ast
+open Interpret
+open Pervasives
 
 type infos = {mutable file : string; mutable data : data option; mutable expr : operator option};;
 
 let create_info () =
 	{file = ""; data = None; expr = None}
-
+;;
 (* let test () =
   let ui = read_csv ("cars.csv") in
   let op = Projection (Relation ui, ["Year"; "Model"]) in 
@@ -24,9 +24,13 @@ let rec repl () =
 	let _ = print_endline " --- Welcome to simeon's miniSQL engine repl ! --- " in
 	let _ = print_string "|> " in
 		let lexbuf = read_line () in 
+                begin
+                  if lexbuf = "hello"
+                    then print_endline "Hello !"
+                end;
 		let _ = print_string lexbuf in
 		let _ = print_endline "" in 
 	repl ()
 ;; 
 
-repl ()
+repl ();;

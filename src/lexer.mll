@@ -1,0 +1,2 @@
+%%
+select  printf("color");
