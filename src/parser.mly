@@ -1,19 +1,19 @@
 %{
-open Sql
+open AstSql
 %}
 
 %token EOF
 %token SELECT FROM WHERE AS IN MINUS UNION
 %token AND OR NOT EQ LT
 %token <string> ID
-%token <string> FILENAME
+%token <string> FILE
 %token COMMA DOT LPAR RPAR
 
 %left OR
 %left AND
 
 %start main
-%type <Sql.query> main
+%type <AstSql.query> main
 
 %%
 
@@ -40,7 +40,7 @@ rels:
   | x=rel COMMA xs=rels                           { x :: xs }
 
 rel:
-  | f=FILENAME x=ID                               { File (f, x) }
+  | f=FILE x=ID                                   { File (f, x) }
   | LPAR q=query RPAR x=ID                        { Query (q, x) }
 
 cond:
