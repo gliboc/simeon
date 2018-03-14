@@ -1,4 +1,4 @@
-open Ast 
+open AstAlg 
 
 
 let cartesian l l' = 

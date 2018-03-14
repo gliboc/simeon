@@ -1,5 +1,6 @@
 open Csv
-open Ast
+open AstAlg
+open AstSql
 open Interpret
 open Pervasives
 
