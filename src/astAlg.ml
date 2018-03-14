@@ -1,24 +1,33 @@
 open Printf
 open Csv
 
-type comp = Eq | Lt | Gt | Leq | Geq
+type comp = Eq 
+          | Lt 
+          | Gt 
+          | Leq 
+          | Geq
 ;;
 
 type cond_expr = Cond of string * comp * string
-			   | And of cond_expr * cond_expr
-			   | Or of cond_expr * cond_expr
-			   | Not of cond_expr
+	       | And of cond_expr * cond_expr
+	       | Or of cond_expr * cond_expr
+	       | Not of cond_expr
 ;;
 
-type data = string list list
+(* This will be new type of data 
+type data = {instance : string list list; name : string}
+*)
+
+type data = string list list (* using not to break compilation atm *)
 ;;
 
-type operator = 
-	  Select of operator * cond_expr
+type operator =
+        | Void
+        |  Select of operator * cond_expr
 	| Projection of operator * string list
 	| Product of operator * operator
 	| Relation of data
-	| Renaming of operator
+	| Renaming of operator * string
 	| Minus of operator * operator
 	| Union of operator * operator
 ;;
@@ -41,8 +50,10 @@ let get_inst data = List.tl(data)
 let count_attr data =
 	let attr = List.hd(data) in List.length attr
 
+(* let create_void_table () = {instance = [[]]; name = "VoidTable"} *)
+let create_void_table () = [[]];;
 
-let parse _ = Relation ([[]]);; 
+let parse _ = Relation (create_void_table ());; 
 
 let exec _ = ();;
 

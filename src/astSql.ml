@@ -1,7 +1,7 @@
 
-type s = Select of (atts * rels * cond)
-       | Minus of (s * s)
-       | Union of (s * s)
+type s = SELECT of (atts * rels * cond)
+       | MINUS of (s * s)
+       | UNIO of (s * s)
 and
      atts = CoupleAtt of attd * atts 
           | Single of attd
