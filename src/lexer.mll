@@ -1,2 +1,2 @@
-%%
-select  printf("color");
+{
+open Tokens
