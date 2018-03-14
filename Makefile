@@ -1,4 +1,4 @@
 all:
-	ocamlbuild -package csv -lib unix main.native
+	ocamlbuild -use-ocamlfind main.native
 clean:
 	ocamlbuild -clean
