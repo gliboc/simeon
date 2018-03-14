@@ -32,4 +32,4 @@ let rec repl () =
   let _ = print_endline "" in
   repl ()
 
-repl ();;
+  let _ = repl ()
