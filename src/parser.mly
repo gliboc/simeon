@@ -40,10 +40,11 @@ rels:
   | x=rel COMMA xs=rels                           { x :: xs }
 
 rel:
-  | f=FILENAME x=ID                               { (File f, x) }
-  | LPAR q=query RPAR x=ID                        { (Query q, x) }
+  | f=FILENAME x=ID                               { File (f, x) }
+  | LPAR q=query RPAR x=ID                        { Query (q, x) }
 
 cond:
+  | LPAR c=cond RPAR                              { c }
   | c1=cond OR c2=cond                            { Or (c1, c2) }
   | c1=cond AND c2=cond                           { And (c1, c2) }
   | a1=attr EQ a2=attr                            { Eq (a1, a2) }
