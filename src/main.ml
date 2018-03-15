@@ -23,7 +23,7 @@ let rec repl () =
     let query = Parser.main Lexer.token stream in
     Printf.printf "your query: %s\n" (AstSql.show_query query)
   with
-    | Parser.Error -> print_endline "plz can i haz SQL"
+    | Parser.Error -> print_endline "Waiting for SQL compiler implementation"
   in repl ()
 
 
