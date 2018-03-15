@@ -9,7 +9,7 @@
   ```
                                            
 
-This project is being written by Guillaume Duboc and Peio Borthelle.
+This project is being written by *Guillaume Duboc* and *Peio Borthelle*.
 
 The runtime environment used for development is Ocaml 4.06.
 
