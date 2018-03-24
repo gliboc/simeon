@@ -1,8 +1,5 @@
 open AstAlg
 
-(* write_to_csv (read_csv ("cars.csv")) "test.csv";; *)
-let db_links = Hashtbl.create 10
-let _ = Hashtbl.add db_links "Cars" "cars.csv"
 
 let rec repl () =
   let _ = print_string "|> " in
@@ -17,8 +14,7 @@ let rec repl () =
     end
   in repl ()
 
-
-let _ =
+let wrap_repl () =
   let _ = print_endline 
 "  _____ ____  ___ ___    ___   ___   ____  
  / ___/|    ||   |   |  /  _] /   \\ |    \\ 
@@ -29,3 +25,27 @@ let _ =
   \\___||____||___|___||_____| \\___/ |__|__|
   "
   in repl ()
+
+let () =
+  if Array.length Sys.argv > 1 then
+    let fi = Sys.argv.(1) in
+	let chan = open_in fi in
+    	let lines = ref "" in
+    	try
+           while true; do
+              lines := !lines ^ "\n" ^ input_line chan
+           done; 
+        with End_of_file ->
+	   close_in chan;
+           let stream = Lexing.from_string (!lines) in
+ 	   let query = Parser.main Lexer.token stream in
+    begin
+    	Printf.printf "Your query: %s\n" (AstSql.show_query query);
+    	let bytecode = Compiler.compile query in 
+     		let _ = Printf.printf "Expression: %s\n" (show_operator bytecode)
+     		in Interpreter.read_data (Interpreter.eval bytecode).inst
+    end
+  else
+    wrap_repl ()                       
+
+
