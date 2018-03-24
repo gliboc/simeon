@@ -14,6 +14,7 @@ This project is being written by *Guillaume Duboc* and *Peio Borthelle*.
 The runtime environment used for development is Ocaml 4.06.
 
 The project uses the opam lib `csv` for reading CSV files, and `menhir` for parsing.
+Also `ppx_deriving` to manipulate custom types. All are installable throught OPAM.
 
 ## Architecture
 

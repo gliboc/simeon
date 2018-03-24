@@ -1,6 +1,22 @@
 open AstAlg
+open Csv
 
+let read_csv filename =
+  let ic = of_channel (open_in filename) in
+  let csv_file = input_all ic in
+  let _ = close_in ic in csv_file
 
+let write_to_csv data filename =
+  let oc = to_channel (open_out filename) in
+  let _ = output_all oc data in close_out oc
+
+let rec read_data = function
+    | [] -> ()
+    | x :: xs -> let _ = Printf.printf "%s\n"
+                 (List.fold_right (fun x s -> x ^ " " ^ s)
+                 		 x "") ;
+      		 in read_data xs
+    
 let cartesian l l' =
   List.concat (List.map (fun e -> List.map (fun e' -> e @ e') l') l)
 
@@ -22,6 +38,7 @@ let match_cmp id_value cmp value = match cmp with
   | Leq -> id_value <= value
   | Geq -> id_value >= value
 
+
 let rec eval_cond id id_value conds = match conds with
   | Cond (id_cond, cmp, value) when id = id_cond ->
     match_cmp id_value cmp value
@@ -37,7 +54,7 @@ let rec eval_row_cond attr (conds : cond_expr) row = match (attr, row) with
     (eval_cond id id_value conds) && (eval_row_cond q conds xs )
 
 let rec eval op = match op with
-  | Relation d -> d
+  | Relation (d, id) -> read_csv (String.sub d 1 (String.length d - 2))
   | Union (r, s) ->
     let r', s' = eval r, eval s in
     let atr, ats = get_attr r', get_attr s' in
@@ -51,9 +68,9 @@ let rec eval op = match op with
     let inr, ins = get_inst r', get_inst s' in
     (atr @ ats) :: cartesian inr ins
   | Projection (r, proj) ->
-    let r' = eval r in
-    let atr = get_attr r' in
-    let indices = proj_indices proj atr in
+      let r' = eval r in
+      let atr = get_attr r' in
+      let indices = proj_indices proj atr in
     List.map (drop_items indices) r'
   | Select (r, conds) ->
     let r' = eval r in

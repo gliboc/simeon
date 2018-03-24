@@ -1,5 +1,6 @@
 %{
 open AstSql
+open String
 %}
 
 %token EOF
@@ -23,7 +24,7 @@ main:
 query:
   | SELECT a=attrs FROM r=rels WHERE c=cond       { Select (a, r, c) }
   | LPAR q1=query RPAR MINUS LPAR q2=query RPAR   { Minus (q1, q2) }
-  | LPAR q1=query RPAR UNION LPAR q2=query RPAR   { Union (q1, q2) }
+  | LPAR q1=query RPAR UNION LPAR q2=query RPAR   { Union (q1, q2) } 
 
 attrs:
   | x=attr_bind                                   { [x] }

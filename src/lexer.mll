@@ -5,7 +5,7 @@ exception Bad_token of string
 
 let alpha = ['a'-'z' 'A'-'Z']
 let ident = alpha (alpha | ['0'-'9' '_'])*
-let file = (alpha | ['0'-'9' '_' '-'])+ ".csv"
+let file = '"' (alpha | ['0'-'9' '_' '-'])+ ".csv" '"'
 
 rule token = parse
   | [' ' '\t' '\n' ]  { token lexbuf }

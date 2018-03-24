@@ -15,15 +15,20 @@ test ();; *)*)
 
 
 (* write_to_csv (read_csv ("cars.csv")) "test.csv";; *)
+let db_links = Hashtbl.create 10
+let _ = Hashtbl.add db_links "Cars" "cars.csv"
 
 let rec repl () =
   let _ = print_string "|> " in
   let stream = Lexing.from_string (read_line ()) in
-  let _ = try
+  let _ =  
     let query = Parser.main Lexer.token stream in
-    Printf.printf "your query: %s\n" (AstSql.show_query query)
-  with
-    | Parser.Error -> print_endline "Waiting for SQL compiler implementation"
+    begin
+    	Printf.printf "Your query: %s\n" (AstSql.show_query query);
+    	let bytecode = Compiler.compile query in bytecode
+     (*	Interpreter.read_data (Interpreter.eval bytecode)
+         *)
+    end
   in repl ()
 
 
