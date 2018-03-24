@@ -1,7 +1,8 @@
 open Printf
 
-type attr = string * string
+type attr = string * string [@@deriving show]
 type attr_bind = attr * string option
+[@@deriving show]
 
 type query =
   | Select of attr_bind list * rel list * cond
@@ -19,7 +20,7 @@ and cond =
   | Lt of attr * attr
   | In of attr * query
   | NotIn of attr * query
-
+[@@deriving show]
 
 let show_list f xs = String.concat ", " (List.map f xs)
 

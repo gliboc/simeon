@@ -1,4 +1,3 @@
-open Csv
 
 type comp =
   | Eq
@@ -6,11 +5,13 @@ type comp =
   | Gt
   | Leq
   | Geq
+[@@deriving show]
 
 type cond_expr = Cond of AstSql.attr * comp * AstSql.attr
   | And of cond_expr * cond_expr
   | Or of cond_expr * cond_expr
   | Not of cond_expr
+[@@deriving show]
 
 type operator =
   | Void
@@ -21,7 +22,7 @@ type operator =
   | Renaming of operator * string
   | Minus of operator * operator
   | Union of operator * operator
-
+[@@deriving show]
 
 let get_attr data = List.hd(data)
 

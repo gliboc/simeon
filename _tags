@@ -1,5 +1,6 @@
 <src>: include
+<src/*>: package(ppx_deriving.std)
+true: linkall
 true: package(csv)
 true: use_menhir
 true: explain
-<src/*>: package (ppx_deriving.std)

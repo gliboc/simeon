@@ -1,18 +1,4 @@
-(*type infos = {mutable file : string;
-              mutable data : data option;
-              mutable expr : operator option}
-
-let create_info () =
-  {file = ""; data = None; expr = None}
-
-(* let test () =
-  let ui = read_csv ("cars.csv") in
-  let op = Projection (Relation ui, ["Year"; "Model"]) in 
-  let c = eval op in 
-  print c ;;
-
-test ();; *)*)
-
+open AstAlg
 
 (* write_to_csv (read_csv ("cars.csv")) "test.csv";; *)
 let db_links = Hashtbl.create 10
@@ -25,7 +11,8 @@ let rec repl () =
     let query = Parser.main Lexer.token stream in
     begin
     	Printf.printf "Your query: %s\n" (AstSql.show_query query);
-    	let bytecode = Compiler.compile query in bytecode
+    	let bytecode = Compiler.compile query in 
+     		Printf.printf "Expression: %s\n" (show_operator bytecode)
      (*	Interpreter.read_data (Interpreter.eval bytecode)
          *)
     end
