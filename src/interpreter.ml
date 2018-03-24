@@ -1,6 +1,21 @@
 open AstAlg
 open Csv
 
+type table =
+  { mutable attr : AstSql.attr_bind list;
+    mutable inst : string list list;
+    mutable id : string}
+[@@deriving show]
+
+type instance = string list list [@@deriving show]
+
+let create_table attr inst name =
+    { attr = attr; inst = inst; id = name}
+
+let rec create_attr id = function
+    | [] -> []
+    | x :: xs -> ((id, x), None) :: create_attr id xs             
+
 let read_csv filename =
   let ic = of_channel (open_in filename) in
   let csv_file = input_all ic in
@@ -20,68 +35,83 @@ let rec read_data = function
 let cartesian l l' =
   List.concat (List.map (fun e -> List.map (fun e' -> e @ e') l') l)
 
-let rec proj_indices proj = function
-  | [] -> []
-  | t :: q when List.mem t proj -> true :: proj_indices proj q
-  | t :: q -> false :: proj_indices proj q
+let slct_ind attr l = 
+    List.map (fun a -> List.mem a attr) l  
 
-let rec drop_items (proj : bool list) (l : string list) = match (l, proj) with
+let rec drop_items proj l = match (l, proj) with
   | [], _ -> []
   | t :: q, [] -> failwith "Proj_indices made a mistake"
   | t :: q, true :: q' -> t :: drop_items q' q
   | t :: q, false :: q' -> drop_items q' q
 
-let match_cmp id_value cmp value = match cmp with
-  | Eq -> id_value = value
-  | Lt -> id_value < value
-  | Gt -> id_value > value
-  | Leq -> id_value <= value
-  | Geq -> id_value >= value
+let eval_cond cmp a a' = match cmp with
+    | Eq -> a = a'
 
 
-let rec eval_cond id id_value conds = match conds with
-  | Cond (id_cond, cmp, value) when id = id_cond ->
-    match_cmp id_value cmp value
-  | Cond (id_cond, cmp, value) -> true
-  | And (c1, c2) -> (eval_cond id id_value c1) && (eval_cond id id_value c2)
-  | Or (c1, c2) -> (eval_cond id id_value c1) || (eval_cond id id_value c2)
-  | Not c -> not (eval_cond id id_value c)
+let rec fltr attr a1 a2 cmp (u, v) row = match (attr, row) with
+    | ([], _) -> begin match (u, v) with
+        	   | (Some a, Some a') -> eval_cond cmp a a'
+                   | _ -> failwith "The condition you expressed is invalid:\nKeys do not exist in constructed table"
+ 		 end                                       
+    | ((a, _) :: attrs, el :: r) when a = a1 -> fltr attrs a1 a2 cmp (Some el, v) r
+    | ((a, _) :: attrs, el :: r) when a = a2 -> fltr attrs a1 a2 cmp (u, Some el) r
+    | ((a, _) :: attrs, el :: r) -> fltr attrs a1 a2 cmp (u, v) r                                                                                                                              
 
-let rec eval_row_cond attr (conds : cond_expr) row = match (attr, row) with
-  | [], _ -> true
-  | t :: q, [] -> failwith "Not enough attributes"
-  | id :: q, id_value :: xs ->
-    (eval_cond id id_value conds) && (eval_row_cond q conds xs )
+and fltr_rw attr c row = match c with
+    | Cond(a1, cmp, a2) -> fltr attr a1 a2 cmp (None, None) row
+    | And(c1, c2) -> (fltr_rw attr c1 row) && (fltr_rw attr c2 row)
+    | Or(c1, c2) -> (fltr_rw attr c1 row) || (fltr_rw attr c2 row)  
 
-let rec eval op = match op with
-  | Relation (d, id) -> read_csv (String.sub d 1 (String.length d - 2))
+
+let rec eval op = 
+  let _ = Printf.printf "Evaluating %s\n\n" (show_operator op) in
+  begin match op with
+  | Relation (d, id) -> let _ = Printf.printf "Loading file %s\n" d in
+    			let l = read_csv (String.sub d 1 (String.length d - 2)) in
+    			let _ = Printf.printf "File looks like :\n %s\n" (show_instance l) in
+    			let attr, inst = List.hd (l), List.tl (l) in
+    			let tab = create_table (create_attr id attr) inst id in
+    			let _ = Printf.printf "Table looks like :\n%s\n\n" (show_table tab) in
+    			tab
+  
   | Union (r, s) ->
-    let r', s' = eval r, eval s in
-    let atr, ats = get_attr r', get_attr s' in
-    if atr = ats then
-      r' @ List.tl (s')
-    else
-      failwith "Attributes are not compatible"
+      let r', s' = eval r, eval s in
+      let _ = Printf.printf "Evaluating %s\n\n" (show_operator op) in
+      let atr, ats = r'.attr , s'.attr in
+      if atr = ats then
+        create_table atr (r'.inst @ s'.inst) "dummy"
+      else
+        failwith "Attributes are not compatible for union"
+  
   | Product (r, s) ->
-    let r', s' = eval r, eval s in
-    let atr, ats = get_attr r', get_attr s' in
-    let inr, ins = get_inst r', get_inst s' in
-    (atr @ ats) :: cartesian inr ins
+      let r', s' = eval r, eval s in
+      let _ = Printf.printf "Evaluating %s\n\n" (show_operator op) in
+      let tab = create_table (r'.attr @ s'.attr) (cartesian r'.inst s'.inst) "dummy" in
+      let _ = Printf.printf "Table looks like :\n%s\n\n" (show_table tab) in tab
+
   | Projection (r, proj) ->
       let r' = eval r in
-      let atr = get_attr r' in
-      let indices = proj_indices proj atr in
-    List.map (drop_items indices) r'
-  | Select (r, conds) ->
-    let r' = eval r in
-    let atr = get_attr r' in
-    let inr = get_inst r' in
-    atr :: (List.filter (eval_row_cond atr conds) inr)
+      let _ = Printf.printf "Evaluating %s\n\n" (show_operator op) in
+      let _ = Printf.printf "Table looks like :\n %s\n\n" (show_table r') in
+      let slct = slct_ind proj r'.attr in
+      	create_table (drop_items slct r'.attr) (List.map (drop_items slct) r'.inst) r'.id
+  
+  | Select (r, cond) ->
+      let r' = eval r in
+      let _ = Printf.printf "Evaluating %s\n\n" (show_operator op) in
+      let _ = Printf.printf "Table looks like :\n %s\n\n" (show_table r') in
+        create_table (r'.attr) (List.filter (fltr_rw r'.attr cond) r'.inst) "dummy"
+  
   | Minus (r,s) ->
-    let r', s' = eval r, eval s in
-    let atr, ats = get_attr r', get_attr s' in
-    let inr, ins = get_inst r', get_inst s' in
-    if atr = ats then
-      atr :: List.filter (fun row -> not (List.mem row ins)) inr
-    else
-      failwith "Attributes not compatible for minus operation"
+      let r', s' = eval r, eval s in
+      let _ = Printf.printf "Evaluating %s\n\n" (show_operator op) in
+      if r'.attr = s'.attr then
+        create_table (r'.attr) (List.filter (fun row -> not (List.mem row s'.inst)) r'.inst) r'.id
+      else
+        failwith "Attributes not compatible for minus operation"
+  end     
+
+
+
+
+

@@ -1,8 +1,8 @@
 open Printf
 
-type attr = string * string [@@deriving show]
+type attr = string * string [@@deriving show, eq]
 type attr_bind = attr * string option
-[@@deriving show]
+[@@deriving show, eq]
 
 type query =
   | Select of attr_bind list * rel list * cond

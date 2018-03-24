@@ -12,9 +12,8 @@ let rec repl () =
     begin
     	Printf.printf "Your query: %s\n" (AstSql.show_query query);
     	let bytecode = Compiler.compile query in 
-     		Printf.printf "Expression: %s\n" (show_operator bytecode)
-     (*	Interpreter.read_data (Interpreter.eval bytecode)
-         *)
+     		let _ = Printf.printf "Expression: %s\n" (show_operator bytecode)
+     		in Interpreter.read_data (Interpreter.eval bytecode).inst
     end
   in repl ()
 
