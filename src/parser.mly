@@ -32,7 +32,7 @@ attrs:
 
 attr_bind:
   | x=attr                                        { (x, None) }
-  | x=attr AS y=ID                                { (x, Some y) }
+  | x=attr AS? y=ID                               { (x, Some y) }
 
 attr: x=ID DOT y=ID                               { (x, y) }
 
@@ -41,8 +41,8 @@ rels:
   | x=rel COMMA xs=rels                           { x :: xs }
 
 rel:
-  | f=FILE x=ID                                   { File (f, x) }
-  | LPAR q=query RPAR x=ID                        { Query (q, x) }
+  | f=FILE AS? x=ID                               { File (f, x) }
+  | LPAR q=query RPAR AS? x=ID                    { Query (q, x) }
 
 cond:
   | LPAR c=cond RPAR                              { c }
