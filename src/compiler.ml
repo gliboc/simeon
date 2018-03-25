@@ -24,6 +24,8 @@ and productify = function
 
 and
     compile = function
+    | SelectJoin (attrs, r1, r2, conds) ->
+        Projection (AstAlg.Select (Product (productify r1, productify r2), c_cond conds), attrs)
     | SelectAll (rels, conds) -> AstAlg.Select (productify rels, c_cond conds)
     | Select (attrs, rels, conds) -> 
         Projection (AstAlg.Select (productify rels, c_cond conds), attrs)

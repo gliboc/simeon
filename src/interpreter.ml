@@ -35,7 +35,7 @@ and fltr_rw attr c row = match c with
     | LtCst (a1, v) -> fltr_cst attr a1 v (<) row 
     | And(c1, c2) -> (fltr_rw attr c1 row) && (fltr_rw attr c2 row)
     | Or(c1, c2) -> (fltr_rw attr c1 row) || (fltr_rw attr c2 row)
-    | In (a, op) -> let table = eval op in check_in attr a table None row
+    | In (a, op) -> let table = eval op in check_in attr a table row
 
 and check_in attr a' table row =
     let a = get_val attr row a' in is_in_table a table.inst
@@ -92,8 +92,8 @@ and eval op =
         failwith "Attributes not compatible for minus operation"
   
   | Join (r, s, c) ->
-      eval Select (Product (r, s), c)
-      
+      eval (Select (Product (r, s), c))
+  
   end     
 
 

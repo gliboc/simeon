@@ -9,6 +9,7 @@ type query =
   | Select of attr_bind list * rel list * cond
   | Minus of query * query
   | Union of query * query
+  | SelectJoin of attr_bind list * rel list * rel list * cond
   | SelectAll of rel list * cond
 
 and rel =
@@ -43,6 +44,12 @@ let rec show_query = function
     sprintf "SELECT %s FROM %s WHERE %s"
       (show_list show_attr_bind attrs)
       (show_list show_rel rels)
+      (show_cond cond)
+  | SelectJoin (attrs, r1, r2, cond) ->
+     sprintf "SELECT %s FROM %s JOIN %s ON %s"
+      (show_list show_attr_bind attrs)
+      (show_list show_rel r1)
+      (show_list show_rel r2)
       (show_cond cond)
   | Minus (q1, q2) -> sprintf "(%s) MINUS (%s)" (show_query q1) (show_query q2)
   | Union (q1, q2) -> sprintf "(%s) UNION (%s)" (show_query q1) (show_query q2)

@@ -20,6 +20,8 @@ rule token = parse
   | "AND"      { AND }
   | "OR"       { OR }
   | "NOT"      { NOT }
+  | "JOIN"     { JOIN }
+  | "ON"       { ON }
   | "*"        { WILDCARD }
   | '='        { EQ }
   | '<'        { LT }

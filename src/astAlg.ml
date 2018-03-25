@@ -21,6 +21,7 @@ and operator =
   | Renaming of operator * string
   | Minus of operator * operator
   | Union of operator * operator
-  | Join of rel * rel * cond_expr
+  | Join of operator * operator * cond_expr
+    
 [@@deriving show]
 

@@ -4,7 +4,7 @@ open String
 %}
 
 %token EOF
-%token SELECT FROM WHERE AS IN MINUS UNION
+%token SELECT FROM WHERE AS IN MINUS UNION JOIN ON
 %token AND OR NOT EQ LT
 %token <string> ID
 %token <string> FILE
@@ -24,10 +24,11 @@ main:
   | q=query EOF                                   { q }
 
 query:
-  | SELECT WILDCARD FROM r=rels WHERE c=cond      { SelectAll (r, c) } 
-  | SELECT a=attrs FROM r=rels WHERE c=cond       { Select (a, r, c) }
-  | LPAR q1=query RPAR MINUS LPAR q2=query RPAR   { Minus (q1, q2) }
-  | LPAR q1=query RPAR UNION LPAR q2=query RPAR   { Union (q1, q2) } 
+  | SELECT WILDCARD FROM r=rels WHERE c=cond            { SelectAll (r, c) } 
+  | SELECT a=attrs FROM r=rels WHERE c=cond             { Select (a, r, c) }
+  | SELECT a=attrs FROM r1=rels JOIN r2=rels ON c=cond  { SelectJoin (a, r1, r2, c) }
+  | LPAR q1=query RPAR MINUS LPAR q2=query RPAR         { Minus (q1, q2) }
+  | LPAR q1=query RPAR UNION LPAR q2=query RPAR         { Union (q1, q2) } 
 
 attrs:
   | x=attr_bind                                   { [x] }
