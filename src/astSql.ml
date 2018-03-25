@@ -19,7 +19,9 @@ and cond =
   | Or of cond * cond
   | And of cond * cond
   | Eq of attr * attr
+  | EqCst of attr * string        
   | Lt of attr * attr
+  | LtCst of attr * string
   | In of attr * query
   | NotIn of attr * query
 [@@deriving show]
@@ -54,5 +56,7 @@ and show_cond = function
   | And (c1, c2) -> sprintf "(%s) AND (%s)" (show_cond c1) (show_cond c2)
   | Eq (a1, a2) -> sprintf "%s = %s" (show_attr a1) (show_attr a2)
   | Lt (a1, a2) -> sprintf "%s < %s" (show_attr a1) (show_attr a2)
+  | EqCst (a1, v) -> sprintf "%s = %s" (show_attr a1) v
+  | LtCst (a1, v) -> sprintf "%s < %s" (show_attr a1) v
   | In (a, q) -> sprintf "%s IN (%s)" (show_attr a) (show_query q)
   | NotIn (a, q) -> sprintf "%s NOT IN (%s)" (show_attr a) (show_query q)

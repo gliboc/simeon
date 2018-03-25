@@ -2,6 +2,8 @@
 open AstAlg
 open Data
 
+type row = string list [@@deriving show]
+
 let cartesian l l' =
   List.concat (List.map (fun e -> List.map (fun e' -> e @ e') l') l)
 
@@ -9,6 +11,7 @@ let rec get_value attrs row a = match (attrs, row) with
     | ([], _) -> failwith "The attribute given does not correspond to the table"
     | ((a', _) :: attrs', el :: r) when a = a' -> el
     | (_ :: attrs', _ :: r) -> get_value attrs' r a       
+
 
 let slct_ind attr l = 
     List.map (fun a -> List.mem a attr) l  
@@ -19,19 +22,24 @@ let rec drop_items proj l = match (l, proj) with
   | t :: q, true :: q' -> t :: drop_items q' q
   | t :: q, false :: q' -> drop_items q' q
 
+let rec get_val attr row a = match (attr, row) with
+    | ([], _) -> failwith "Attribute not found"
+    | ((a', _) :: _, el :: _) when a = a' -> el
+    | (_ :: attr', _ :: r) -> get_val attr' r a
 
-let rec fltr attr a1 a2 cmp (u, v) row = match (attr, row) with
-    | ([], _) -> begin match (u, v) with
-        	   | (Some a, Some a') -> cmp a a'
-                   | _ -> failwith "The condition you expressed is invalid:\nKeys do not exist in constructed table"
- 		 end                                       
-    | ((a, _) :: attrs, el :: r) when a = a1 -> fltr attrs a1 a2 cmp (Some el, v) r 
-    | ((a, _) :: attrs, el :: r) when a = a2 -> fltr attrs a1 a2 cmp (u, Some el) r 
-    | ((a, _) :: attrs, el :: r) -> fltr attrs a1 a2 cmp (u, v) r                                                                                                                             
+let rec fltr attr a1 a2 cmp row = 
+    let (a, a') = (get_val attr row a1, get_val attr row a2) in 
+    	cmp a a'
+
+and fltr_cst attr a1 cst cmp row =
+    let k = get_val attr row a1 in 
+        cmp k cst
 
 and fltr_rw attr c row = match c with
-    | Eq (a1, a2) -> fltr attr a1 a2 (=) (None, None) row 
-    | Lt (a1, a2) -> fltr attr a1 a2 (<) (None, None) row 
+    | Eq (a1, a2) -> fltr attr a1 a2 (=) row 
+    | Lt (a1, a2) -> fltr attr a1 a2 (<) row 
+    | EqCst (a1, v) -> fltr_cst attr a1 v (=) row 
+    | LtCst (a1, v) -> fltr_cst attr a1 v (<) row 
     | And(c1, c2) -> (fltr_rw attr c1 row) && (fltr_rw attr c2 row)
     | Or(c1, c2) -> (fltr_rw attr c1 row) || (fltr_rw attr c2 row)
     | In (a, op) -> let table = eval op in check_in attr a table None row

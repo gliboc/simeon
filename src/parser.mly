@@ -10,6 +10,7 @@ open String
 %token <string> FILE
 %token COMMA DOT LPAR RPAR
 %token WILDCARD
+%token <string> CONST
 
 %left OR
 %left AND
@@ -51,6 +52,8 @@ cond:
   | c1=cond OR c2=cond                            { Or (c1, c2) }
   | c1=cond AND c2=cond                           { And (c1, c2) }
   | a1=attr EQ a2=attr                            { Eq (a1, a2) }
+  | a1=attr EQ v=CONST				  { EqCst (a1, String.sub v 1 (String.length v - 2)) }
   | a1=attr LT a2=attr                            { Lt (a1, a2) }
+  | a1=attr LT v=CONST 				  { LtCst (a1, v) }
   | a=attr IN LPAR q=query RPAR                   { In (a, q) }
   | a=attr NOT IN LPAR q=query RPAR               { NotIn (a, q) }

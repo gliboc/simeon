@@ -3,6 +3,8 @@
 type cond_expr = 
   | Eq of AstSql.attr * AstSql.attr
   | Lt of AstSql.attr * AstSql.attr
+  | EqCst of AstSql.attr * string
+  | LtCst of AstSql.attr * string
   | And of cond_expr * cond_expr
   | Or of cond_expr * cond_expr
   | Not of cond_expr
