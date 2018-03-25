@@ -12,9 +12,10 @@ type cond_expr =
   | And of cond_expr * cond_expr
   | Or of cond_expr * cond_expr
   | Not of cond_expr
+  | In of AstSql.attr * operator
 [@@deriving show]
 
-type operator =
+and operator =
   | Void
   | Select of operator * cond_expr
   | Projection of operator * AstSql.attr_bind list

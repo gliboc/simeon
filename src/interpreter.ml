@@ -47,7 +47,6 @@ let rec drop_items proj l = match (l, proj) with
 let eval_cond cmp a a' = match cmp with
     | Eq -> a = a'
 
-
 let rec fltr attr a1 a2 cmp (u, v) row = match (attr, row) with
     | ([], _) -> begin match (u, v) with
         	   | (Some a, Some a') -> eval_cond cmp a a'
@@ -60,10 +59,22 @@ let rec fltr attr a1 a2 cmp (u, v) row = match (attr, row) with
 and fltr_rw attr c row = match c with
     | Cond(a1, cmp, a2) -> fltr attr a1 a2 cmp (None, None) row
     | And(c1, c2) -> (fltr_rw attr c1 row) && (fltr_rw attr c2 row)
-    | Or(c1, c2) -> (fltr_rw attr c1 row) || (fltr_rw attr c2 row)  
+    | Or(c1, c2) -> (fltr_rw attr c1 row) || (fltr_rw attr c2 row)
+    | In (a, op) -> let table = eval op in check_in attr a table None row
+ 
+and check_in attr a' table u row = match (attr, row) with
+    | ([], _) -> begin match u with
+        	   | Some a -> is_in_table a table.inst
+                   | _ -> failwith "The condition expressed is invalid"
+ 		 end                                                        
+    | ((a, _) :: attrs, el :: r) when a = a' -> check_in attrs a' table (Some el) r
+    | ((a, _) :: attrs, el :: r) -> check_in attrs a' table u r                                                                                                                                   
 
+and is_in_table a = function
+    | [] -> false
+    | x :: xs -> (List.mem a x) || (is_in_table a xs)  
 
-let rec eval op = 
+and eval op = 
   let _ = Printf.printf "Evaluating %s\n\n" (show_operator op) in
   begin match op with
   | Relation (d, id) -> let _ = Printf.printf "Loading file %s\n" d in
