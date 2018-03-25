@@ -22,6 +22,7 @@ and productify = function
 
 and
     compile = function
+    | SelectAll (rels, conds) -> AstAlg.Select (productify rels, c_cond conds)
     | Select (attrs, rels, conds) -> 
         Projection (AstAlg.Select (productify rels, c_cond conds), attrs)
     | Minus (q1, q2) -> AstAlg.Minus (compile q1, compile q2)

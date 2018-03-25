@@ -8,6 +8,7 @@ type query =
   | Select of attr_bind list * rel list * cond
   | Minus of query * query
   | Union of query * query
+  | SelectAll of rel list * cond
 
 and rel =
   | File of string * string
@@ -31,6 +32,10 @@ let show_attr_bind = function
   | (a, Some x) -> sprintf "%s AS %s" (show_attr a) x
 
 let rec show_query = function
+  | SelectAll (rels, cond) -> 
+    sprintf "SELECT * FROM %s WHERE %s" 
+      (show_list show_rel rels)
+      (show_cond cond)
   | Select (attrs, rels, cond) ->
     sprintf "SELECT %s FROM %s WHERE %s"
       (show_list show_attr_bind attrs)

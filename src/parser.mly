@@ -9,6 +9,7 @@ open String
 %token <string> ID
 %token <string> FILE
 %token COMMA DOT LPAR RPAR
+%token WILDCARD
 
 %left OR
 %left AND
@@ -22,6 +23,7 @@ main:
   | q=query EOF                                   { q }
 
 query:
+  | SELECT WILDCARD FROM r=rels WHERE c=cond      { SelectAll (r, c) } 
   | SELECT a=attrs FROM r=rels WHERE c=cond       { Select (a, r, c) }
   | LPAR q1=query RPAR MINUS LPAR q2=query RPAR   { Minus (q1, q2) }
   | LPAR q1=query RPAR UNION LPAR q2=query RPAR   { Union (q1, q2) } 

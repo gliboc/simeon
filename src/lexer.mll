@@ -19,6 +19,7 @@ rule token = parse
   | "AND"      { AND }
   | "OR"       { OR }
   | "NOT"      { NOT }
+  | "*"        { WILDCARD }
   | '='        { EQ }
   | '<'        { LT }
   | ','        { COMMA }
