@@ -6,13 +6,6 @@ type row = string list [@@deriving show]
 
 let cartesian l l' =
   List.concat (List.map (fun e -> List.map (fun e' -> e @ e') l') l)
-
-let rec get_value attrs row a = match (attrs, row) with
-    | ([], _) -> failwith "The attribute given does not correspond to the table"
-    | ((a', _) :: attrs', el :: r) when a = a' -> el
-    | (_ :: attrs', _ :: r) -> get_value attrs' r a       
-
-
 let slct_ind attr l = 
     List.map (fun a -> List.mem a attr) l  
 
@@ -43,14 +36,9 @@ and fltr_rw attr c row = match c with
     | And(c1, c2) -> (fltr_rw attr c1 row) && (fltr_rw attr c2 row)
     | Or(c1, c2) -> (fltr_rw attr c1 row) || (fltr_rw attr c2 row)
     | In (a, op) -> let table = eval op in check_in attr a table None row
- 
-and check_in attr a' table u row = match (attr, row) with
-    | ([], _) -> begin match u with
-        	   | Some a -> is_in_table a table.inst
-                   | _ -> failwith "The condition expressed is invalid"
- 		 end                                                        
-    | ((a, _) :: attrs, el :: r) when a = a' -> check_in attrs a' table (Some el) r
-    | ((a, _) :: attrs, el :: r) -> check_in attrs a' table u r                                                                                                                                   
+
+and check_in attr a' table row =
+    let a = get_val attr row a' in is_in_table a table.inst
 
 and is_in_table a = function
     | [] -> false
@@ -102,12 +90,10 @@ and eval op =
         create_table (r'.attr) (List.filter (fun row -> not (List.mem row s'.inst)) r'.inst) r'.id
       else
         failwith "Attributes not compatible for minus operation"
- (* 
-  | Join ((f, id), (f', id'), Eq(a, a')) ->
-      let r', s' = eval (Relation (f, id)), eval (Relation (f', id')) in
-      X
-      let v = get_value r'.attr  
-   *)            
+  
+  | Join (r, s, c) ->
+      eval Select (Product (r, s), c)
+      
   end     
 
 
