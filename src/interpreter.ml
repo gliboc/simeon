@@ -1,39 +1,14 @@
+(* Interpreter for a relational algebra syntaxic tree *)
 open AstAlg
-open Csv
+open Data
 
-type table =
-  { mutable attr : AstSql.attr_bind list;
-    mutable inst : string list list;
-    mutable id : string}
-[@@deriving show]
-
-type instance = string list list [@@deriving show]
-
-let create_table attr inst name =
-    { attr = attr; inst = inst; id = name}
-
-let rec create_attr id = function
-    | [] -> []
-    | x :: xs -> ((id, x), None) :: create_attr id xs             
-
-let read_csv filename =
-  let ic = of_channel (open_in filename) in
-  let csv_file = input_all ic in
-  let _ = close_in ic in csv_file
-
-let write_to_csv data filename =
-  let oc = to_channel (open_out filename) in
-  let _ = output_all oc data in close_out oc
-
-let rec read_data = function
-    | [] -> ()
-    | x :: xs -> let _ = Printf.printf "%s\n"
-                 (List.fold_right (fun x s -> x ^ " " ^ s)
-                 		 x "") ;
-      		 in read_data xs
-    
 let cartesian l l' =
   List.concat (List.map (fun e -> List.map (fun e' -> e @ e') l') l)
+
+let rec get_value attrs row a = match (attrs, row) with
+    | ([], _) -> failwith "The attribute given does not correspond to the table"
+    | ((a', _) :: attrs', el :: r) when a = a' -> el
+    | (_ :: attrs', _ :: r) -> get_value attrs' r a       
 
 let slct_ind attr l = 
     List.map (fun a -> List.mem a attr) l  
@@ -119,6 +94,12 @@ and eval op =
         create_table (r'.attr) (List.filter (fun row -> not (List.mem row s'.inst)) r'.inst) r'.id
       else
         failwith "Attributes not compatible for minus operation"
+ (* 
+  | Join ((f, id), (f', id'), Eq(a, a')) ->
+      let r', s' = eval (Relation (f, id)), eval (Relation (f', id')) in
+      X
+      let v = get_value r'.attr  
+   *)            
   end     
 
 

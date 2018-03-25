@@ -1,3 +1,5 @@
+(* Contains the types for the relational algebra AST *)
+
 type cond_expr = 
   | Eq of AstSql.attr * AstSql.attr
   | Lt of AstSql.attr * AstSql.attr
@@ -7,17 +9,16 @@ type cond_expr =
   | In of AstSql.attr * operator
 [@@deriving show]
 
+and rel = string * string 
+
 and operator =
-  | Void
   | Select of operator * cond_expr
   | Projection of operator * AstSql.attr_bind list
   | Product of operator * operator
-  | Relation of string * string
+  | Relation of rel
   | Renaming of operator * string
   | Minus of operator * operator
   | Union of operator * operator
+  | Join of rel * rel * cond_expr
 [@@deriving show]
-
-
-let parse _ = Relation ("", "")
 

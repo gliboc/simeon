@@ -1,3 +1,4 @@
+(* Contains the type for the miniSQL AST *)
 open Printf
 
 type attr = string * string [@@deriving show, eq]

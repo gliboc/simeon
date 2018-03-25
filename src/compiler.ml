@@ -1,4 +1,4 @@
-(* Converting a miniSQL ast to a relationnal algebra ast *)
+(* Compiler from miniSQL AST to relational algebra AST *)
 open AstAlg
 open AstSql
 
@@ -27,4 +27,3 @@ and
         Projection (AstAlg.Select (productify rels, c_cond conds), attrs)
     | Minus (q1, q2) -> AstAlg.Minus (compile q1, compile q2)
     | Union (q1, q2) -> AstAlg.Union (compile q1, compile q2)
-                                                            
