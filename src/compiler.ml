@@ -5,9 +5,9 @@ open AstSql
 let rec c_cond = function
     | Or (c1, c2) -> AstAlg.Or (c_cond c1, c_cond c2)
     | And (c1, c2) -> AstAlg.And (c_cond c1, c_cond c2)
-    | Eq (attr, attr') -> Cond (attr, AstAlg.Eq, attr')
-    | Lt (a, a') -> Cond (a, AstAlg.Lt, a')
-    | In (a, q) -> In (a, compile q)
+    | Eq (attr, attr') -> AstAlg.Eq (attr, attr')
+    | Lt (a, a') -> AstAlg.Lt (a, a')
+    | In (a, q) -> AstAlg.In (a, compile q)
     | _ -> failwith "To do"
             
 and    

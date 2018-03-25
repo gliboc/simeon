@@ -1,14 +1,6 @@
-
-type comp =
-  | Eq
-  | Lt
-  | Gt
-  | Leq
-  | Geq
-[@@deriving show]
-
 type cond_expr = 
-  | Cond of AstSql.attr * comp * AstSql.attr
+  | Eq of AstSql.attr * AstSql.attr
+  | Lt of AstSql.attr * AstSql.attr
   | And of cond_expr * cond_expr
   | Or of cond_expr * cond_expr
   | Not of cond_expr

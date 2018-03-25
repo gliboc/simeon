@@ -44,20 +44,19 @@ let rec drop_items proj l = match (l, proj) with
   | t :: q, true :: q' -> t :: drop_items q' q
   | t :: q, false :: q' -> drop_items q' q
 
-let eval_cond cmp a a' = match cmp with
-    | Eq -> a = a'
 
 let rec fltr attr a1 a2 cmp (u, v) row = match (attr, row) with
     | ([], _) -> begin match (u, v) with
-        	   | (Some a, Some a') -> eval_cond cmp a a'
+        	   | (Some a, Some a') -> cmp a a'
                    | _ -> failwith "The condition you expressed is invalid:\nKeys do not exist in constructed table"
  		 end                                       
-    | ((a, _) :: attrs, el :: r) when a = a1 -> fltr attrs a1 a2 cmp (Some el, v) r
-    | ((a, _) :: attrs, el :: r) when a = a2 -> fltr attrs a1 a2 cmp (u, Some el) r
-    | ((a, _) :: attrs, el :: r) -> fltr attrs a1 a2 cmp (u, v) r                                                                                                                              
+    | ((a, _) :: attrs, el :: r) when a = a1 -> fltr attrs a1 a2 cmp (Some el, v) r 
+    | ((a, _) :: attrs, el :: r) when a = a2 -> fltr attrs a1 a2 cmp (u, Some el) r 
+    | ((a, _) :: attrs, el :: r) -> fltr attrs a1 a2 cmp (u, v) r                                                                                                                             
 
 and fltr_rw attr c row = match c with
-    | Cond(a1, cmp, a2) -> fltr attr a1 a2 cmp (None, None) row
+    | Eq (a1, a2) -> fltr attr a1 a2 (=) (None, None) row 
+    | Lt (a1, a2) -> fltr attr a1 a2 (<) (None, None) row 
     | And(c1, c2) -> (fltr_rw attr c1 row) && (fltr_rw attr c2 row)
     | Or(c1, c2) -> (fltr_rw attr c1 row) || (fltr_rw attr c2 row)
     | In (a, op) -> let table = eval op in check_in attr a table None row
