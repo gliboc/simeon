@@ -21,19 +21,19 @@ and rel =
 and cond =
   | Or of cond * cond
   | And of cond * cond
-  | Eq of attr * attr
-  | EqCst of attr * string        
-  | Lt of attr * attr
-  | LtCst of attr * string
-  | In of attr * query
-  | NotIn of attr * query
+  | Eq of attr_bind * attr
+  | EqCst of attr_bind * string        
+  | Lt of attr_bind * attr
+  | LtCst of attr_bind * string
+  | In of attr_bind * query
+  | NotIn of attr_bind * query
 [@@deriving show]
 
 let show_list f xs = String.concat ", " (List.map f xs)
 
 let show_attr (x, y) = x ^ "." ^ y
 
-let show_attr_bind = function
+let show_attr  = function
   | (a, None) -> show_attr a
   | (a, Some x) -> sprintf "%s AS %s" (show_attr a) x
 
@@ -47,7 +47,7 @@ let rec show_query = function
       (show_cond cond)
   | Select (attrs, rels, cond) ->
     sprintf "SELECT %s FROM %s WHERE %s"
-      (show_list show_attr_bind attrs)
+      (show_list show_attr  attrs)
       (show_list show_rel rels)
       (show_cond cond)
   | Join (r1, r2, cond) ->

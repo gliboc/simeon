@@ -15,9 +15,13 @@ let rec drop_items proj l = match (l, proj) with
   | t :: q, true :: q' -> t :: drop_items q' q
   | t :: q, false :: q' -> drop_items q' q
 
+let get_alias a = match a with
+    | (_, either) -> either
+
 let rec get_val attr row a = match (attr, row) with
     | (([], _) | (_, [])) -> failwith "Attribute not found"
     | ((a', _) :: _, el :: _) when a = a' -> el
+    | ((_, Some al) :: _, el :: _) when (Some al) = (get_alias a) -> el   
     | (_ :: attr', _ :: r) -> get_val attr' r a
 
 let rec fltr attr a1 a2 cmp row = 

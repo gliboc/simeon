@@ -1,14 +1,14 @@
 (* Contains the types for the relational algebra AST *)
 
 type cond_expr = 
-  | Eq of Ast.attr * Ast.attr
-  | Lt of Ast.attr * Ast.attr
-  | EqCst of Ast.attr * string
-  | LtCst of Ast.attr * string
+  | Eq of Ast.attr_bind * Ast.attr_bind
+  | Lt of Ast.attr_bind * Ast.attr_bind
+  | EqCst of Ast.attr_bind * string
+  | LtCst of Ast.attr_bind * string
   | And of cond_expr * cond_expr
   | Or of cond_expr * cond_expr
   | Not of cond_expr
-  | In of Ast.attr * operator
+  | In of Ast.attr_bind * operator
 [@@deriving show]
 
 and rel = string * string 
