@@ -26,11 +26,12 @@ let write_to_csv data filename =
   let oc = to_channel (open_out filename) in
   let _ = output_all oc data in close_out oc
 
-let rec read_data = function
+let rec pprint_data = function
     | [] -> ()
     | x :: xs -> let _ = Printf.printf "%s\n"
                  (List.fold_right (fun x s -> x ^ " " ^ s)
                  		 x "") ;
-      		 in read_data xs
+      		 in pprint_data xs
+             
     
 

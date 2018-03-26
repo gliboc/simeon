@@ -24,9 +24,9 @@ main:
   | q=query EOF                                   { q }
 
 query:
-  | SELECT WILDCARD FROM r=rels WHERE c=cond            { SelectAll (r, c) } 
-  | SELECT a=attrs FROM r=rels WHERE c=cond             { Select (a, r, c) }
-  | SELECT a=attrs FROM r1=rels JOIN r2=rels ON c=cond  { SelectJoin (a, r1, r2, c) }
+  | SELECT WILDCARD FROM r=rels WHERE c=cond            { SelectAll (productify r, c) } 
+  | SELECT a=attrs FROM r=rels WHERE c=cond             { Select (a, productify r, c) }
+  | SELECT a=attrs FROM r1=rels JOIN r2=rels ON cj=cond WHERE cs=cond  { Select (a, Join (productify r1, productify r2, cj), cs) }
   | LPAR q1=query RPAR MINUS LPAR q2=query RPAR         { Minus (q1, q2) }
   | LPAR q1=query RPAR UNION LPAR q2=query RPAR         { Union (q1, q2) } 
 
