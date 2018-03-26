@@ -9,10 +9,10 @@ let rec repl () =
   let _ =
     let query = Parser.main Lexer.token stream in
     begin
-    	Printf.printf "Your query: %s\n" (Ast.show_query query);
-    	let bytecode = Compiler.compile query in 
-     		let _ = Printf.printf "Expression: %s\n" (show_operator bytecode)
-     		in Data.pprint_data (Interpreter.eval bytecode).inst
+    Printf.printf "Your query: %s\n" (Ast.show query);
+    let bytecode = Compiler.compile query in
+    let _ = Printf.printf "Expression: %s\n" (Algebra.show bytecode)
+    in Data.pprint_data (Interpreter.eval bytecode).inst
     end
   in repl ()
 
@@ -34,10 +34,10 @@ let () =
     let stream = Lexing.from_channel chan in
     let query = Parser.main Lexer.token stream in
     begin
-    	Printf.printf "Your query: %s\n" (Ast.show_query query);
-    	let bytecode = Compiler.compile query in 
-     		let _ = Printf.printf "Expression: %s\n" (show_operator bytecode)
-     		in Data.pprint_data (Interpreter.eval bytecode).inst
+      Printf.printf "Your query: %s\n" (Ast.show query);
+      let bytecode = Compiler.compile query in
+      let _ = Printf.printf "Expression: %s\n" (Algebra.show bytecode)
+      in Data.pprint_data (Interpreter.eval bytecode).inst
     end
   else
     wrap_repl ()
