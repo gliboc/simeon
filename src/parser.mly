@@ -1,22 +1,25 @@
 %{
 open Ast
 open String
+
+let join_of_list = List.fold_left (fun r1 (r2, c) -> Join (r1, r2, c))
 %}
 
 %token EOF
 %token SELECT FROM WHERE AS IN MINUS UNION JOIN ON
-%token AND OR NOT EQ LT
-%token <string> ID
-%token <string> FILE
+%token AND OR NOT EQ LT ADD SUB STAR DIV
+%token <string> ID FILE STRING
+%token <int> NUM
 %token COMMA DOT LPAR RPAR
-%token WILDCARD
-%token <string> CONST
 
 %left OR
 %left AND
+%nonassoc NOT
+%left ADD SUB
+%left STAR DIV
 
 %start main
-%type <Ast.query> main
+%type <Ast.t> main
 
 %%
 
@@ -24,11 +27,14 @@ main:
   | q=query EOF                                   { q }
 
 query:
-  | SELECT WILDCARD FROM r=rels WHERE c=cond            { SelectAll (r, c) } 
-  | SELECT a=attrs FROM r=rels WHERE c=cond             { Select (a, r, c) }
-  | SELECT a=attrs FROM r1=rels JOIN r2=rels ON cj=cond WHERE cs=cond  { Select (a, Join (r1, r2, cj), cs) }
-  | LPAR q1=query RPAR MINUS LPAR q2=query RPAR         { Minus (q1, q2) }
-  | LPAR q1=query RPAR UNION LPAR q2=query RPAR         { Union (q1, q2) } 
+  | SELECT p=proj r=from                          { Select (p, r, None) }
+  | SELECT p=proj r=from WHERE c=cond             { Select (p, r, Some c) }
+  | LPAR q1=query RPAR MINUS LPAR q2=query RPAR   { Minus (q1, q2) }
+  | LPAR q1=query RPAR UNION LPAR q2=query RPAR   { Union (q1, q2) }
+
+proj:
+  | STAR                                          { Star }
+  | a=attrs                                       { Attrs a }
 
 attrs:
   | x=attr_bind                                   { [x] }
@@ -40,21 +46,37 @@ attr_bind:
 
 attr: x=ID DOT y=ID                               { (x, y) }
 
+from:
+  | FROM r=rels j=join                            { join_of_list r j }
+
 rels:
-  | x=rel                                         { Relation (x) }
-  | x=rel COMMA xs=rels                           { Product (x, xs) }
+  | r=rel                                         { r }
+  | r=rel COMMA rs=rels                           { Product (r, rs)}
 
 rel:
   | f=FILE AS? x=ID                               { File (f, x) }
   | LPAR q=query RPAR AS? x=ID                    { Query (q, x) }
 
+join:
+  |                                               { [] }
+  | JOIN r=rel ON c=cond j=join                   { (r, c) :: j }
+
 cond:
   | LPAR c=cond RPAR                              { c }
+  | NOT c=cond                                    { Not c }
   | c1=cond OR c2=cond                            { Or (c1, c2) }
   | c1=cond AND c2=cond                           { And (c1, c2) }
-  | a1=attr EQ a2=attr                            { Eq (a1, a2) }
-  | a1=attr EQ v=CONST                            { EqCst (a1, String.sub v 1 (String.length v - 2)) }
-  | a1=attr LT a2=attr                            { Lt (a1, a2) }
-  | a1=attr LT v=CONST                            { LtCst (a1, v) }
-  | a=attr IN LPAR q=query RPAR                   { In (a, q) }
-  | a=attr NOT IN LPAR q=query RPAR               { NotIn (a, q) }
+  | e1=expr EQ e2=expr                            { Eq (e1, e2) }
+  | e1=expr LT e2=expr                            { Lt (e1, e2) }
+  | e=expr IN LPAR q=query RPAR                   { In (e, q) }
+  | e=expr NOT IN LPAR q=query RPAR               { Not (In (e, q)) }
+
+expr:
+  | LPAR e=expr RPAR                              { e }
+  | e1=expr ADD e2=expr                           { Add (e1, e2) }
+  | e1=expr SUB e2=expr                           { Sub (e1, e2) }
+  | e1=expr STAR e2=expr                          { Mult (e1, e2) }
+  | e1=expr DIV e2=expr                           { Div (e1, e2) }
+  | i=NUM                                         { Num i }
+  | s=STRING                                      { String s }
+  | a=attr                                        { Attr a }
