@@ -22,6 +22,4 @@ and operator =
   | Minus of operator * operator
   | Union of operator * operator
   | Join of operator * operator * cond_expr
-    
 [@@deriving show]
-
