@@ -7,8 +7,15 @@ type row = string list [@@deriving show]
 
 let cartesian l l' =
   List.concat (List.map (fun e -> List.map (fun e' -> e @ e') l') l)
+
+let rec attr_mem a = function
+    | [] -> false
+    | ((a', _) :: _) when (fst a) = a' -> true
+    | ((_, al) :: _) when (snd a) = al -> true
+    | _ :: xs -> attr_mem a xs             
+      
 let slct_ind attr l = 
-    List.map (fun a -> List.mem a attr) l  
+    List.map (fun a -> attr_mem a attr) l  
 
 let rec drop_items proj l = match (l, proj) with
   | [], _ -> []
@@ -16,9 +23,12 @@ let rec drop_items proj l = match (l, proj) with
   | t :: q, true :: q' -> t :: drop_items q' q
   | t :: q, false :: q' -> drop_items q' q
 
-let rec get_val attr row a = match (attr, row) with
+let get_alias attr = snd attr
+
+let rec get_val (attr : attr_bind list) row (a : attr_bind) = match (attr, row) with
     | (([], _) | (_, [])) -> failwith "Attribute not found"
-    | ((a', _) :: _, el :: _) when a = a' -> el
+    | ((a', _) :: _, el :: _) when (fst a) = a' -> el
+    | ((_, Some al) :: _, el :: _) when Some al = (snd a) -> el
     | (_ :: attr', _ :: r) -> get_val attr' r a
 
 let rec fltr attr a1 a2 cmp row = 

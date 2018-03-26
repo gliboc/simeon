@@ -79,4 +79,4 @@ expr:
   | e1=expr DIV e2=expr                           { Div (e1, e2) }
   | i=NUM                                         { Num i }
   | s=STRING                                      { String s }
-  | a=attr                                        { Attr a }
+  | a=attr_bind                                   { Attr a }

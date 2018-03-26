@@ -11,7 +11,7 @@ type proj =
 type expr =
   | Num of int
   | String of string
-  | Attr of attr
+  | Attr of attr_bind
   | Add of expr * expr
   | Sub of expr * expr
   | Mult of expr * expr
