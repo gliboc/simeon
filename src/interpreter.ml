@@ -16,7 +16,7 @@ let rec drop_items proj l = match (l, proj) with
   | t :: q, false :: q' -> drop_items q' q
 
 let rec get_val attr row a = match (attr, row) with
-    | ([], _) -> failwith "Attribute not found"
+    | (([], _) | (_, [])) -> failwith "Attribute not found"
     | ((a', _) :: _, el :: _) when a = a' -> el
     | (_ :: attr', _ :: r) -> get_val attr' r a
 
@@ -36,6 +36,7 @@ and fltr_rw attr c row = match c with
     | And(c1, c2) -> (fltr_rw attr c1 row) && (fltr_rw attr c2 row)
     | Or(c1, c2) -> (fltr_rw attr c1 row) || (fltr_rw attr c2 row)
     | In (a, op) -> let table = eval op in check_in attr a table row
+    | Not (op) -> not (fltr_rw attr op row)
 
 and check_in attr a' table row =
     let a = get_val attr row a' in is_in_table a table.inst
@@ -93,7 +94,9 @@ and eval op =
   
   | Join (r, s, c) ->
       eval (Select (Product (r, s), c))
-  
+ 
+  | Renaming (_) -> (*TODO*) failwith "Implement renaming"
+          
   end     
 
 
