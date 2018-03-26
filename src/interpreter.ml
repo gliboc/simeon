@@ -39,7 +39,10 @@ and fltr_rw attr c row = match c with
     | Not (op) -> not (fltr_rw attr op row)
 
 and check_in attr a' table row =
-    let a = get_val attr row a' in is_in_table a table.inst
+    if List.length table.attr > 1
+       then failwith "Expected number of columns: 1"
+    else
+       let a = get_val attr row a' in is_in_table a table.inst
 
 and is_in_table a = function
     | [] -> false
