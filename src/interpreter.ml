@@ -1,5 +1,5 @@
 (* Interpreter for a relational algebra syntaxic tree *)
-open AstAlg
+open Algebra
 open Data
 
 type row = string list [@@deriving show]

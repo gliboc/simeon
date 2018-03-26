@@ -3,7 +3,7 @@
 open Csv
 
 type table =
-  { mutable attr : AstSql.attr_bind list;
+  { mutable attr : Ast.attr_bind list;
     mutable inst : string list list;
     mutable id : string}
 [@@deriving show]

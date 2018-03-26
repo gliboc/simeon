@@ -6,11 +6,13 @@ type attr_bind = attr * string option
 [@@deriving show, eq]
 
 type query =
-  | Select of attr_bind list * rel list * cond
+  | Select of attr_bind list * query * cond
   | Minus of query * query
   | Union of query * query
-  | Join of rel list * rel list * cond
-  | SelectAll of rel list * cond
+  | Join of query * query * cond
+  | SelectAll of query * cond
+  | Product of rel * query   (* Used to parse rels into a query type *)
+  | Relation of rel (* Same than previous *)
 
 and rel =
   | File of string * string
@@ -35,6 +37,9 @@ let show_attr_bind = function
   | (a, None) -> show_attr a
   | (a, Some x) -> sprintf "%s AS %s" (show_attr a) x
 
+(* Deprecated to ppx_deriving
+ It's less pretty ok.  *)
+(* 
 let rec show_query = function
   | SelectAll (rels, cond) -> 
     sprintf "SELECT * FROM %s WHERE %s" 
@@ -66,3 +71,4 @@ and show_cond = function
   | LtCst (a1, v) -> sprintf "%s < %s" (show_attr a1) v
   | In (a, q) -> sprintf "%s IN (%s)" (show_attr a) (show_query q)
   | NotIn (a, q) -> sprintf "%s NOT IN (%s)" (show_attr a) (show_query q)
+*)

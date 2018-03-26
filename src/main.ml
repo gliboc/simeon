@@ -1,6 +1,6 @@
 (* Contains the REPL for miniSQL, as well as the script
    for loading miniSQL queries in *.sql files *)
-open AstAlg
+open Algebra
 
 
 let rec repl () =
@@ -9,7 +9,7 @@ let rec repl () =
   let _ =
     let query = Parser.main Lexer.token stream in
     begin
-    	Printf.printf "Your query: %s\n" (AstSql.show_query query);
+    	Printf.printf "Your query: %s\n" (Ast.show_query query);
     	let bytecode = Compiler.compile query in 
      		let _ = Printf.printf "Expression: %s\n" (show_operator bytecode)
      		in Data.pprint_data (Interpreter.eval bytecode).inst
@@ -34,18 +34,10 @@ let () =
     let stream = Lexing.from_channel chan in
     let query = Parser.main Lexer.token stream in
     begin
-<<<<<<< HEAD
-    	Printf.printf "Your query: %s\n" (AstSql.show_query query);
+    	Printf.printf "Your query: %s\n" (Ast.show_query query);
     	let bytecode = Compiler.compile query in 
      		let _ = Printf.printf "Expression: %s\n" (show_operator bytecode)
      		in Data.pprint_data (Interpreter.eval bytecode).inst
-=======
-      close_in chan;
-      Printf.printf "Your query: %s\n" (AstSql.show_query query);
-      let bytecode = Compiler.compile query in
-      let _ = Printf.printf "Expression: %s\n" (show_operator bytecode) in
-      Data.read_data (Interpreter.eval bytecode).inst;
->>>>>>> 6787060b0746f54e637ede42769620d35f58782b
     end
   else
     wrap_repl ()

@@ -1,5 +1,5 @@
 %{
-open AstSql
+open Ast
 open String
 %}
 
@@ -16,7 +16,7 @@ open String
 %left AND
 
 %start main
-%type <AstSql.query> main
+%type <Ast.query> main
 
 %%
 
@@ -24,9 +24,9 @@ main:
   | q=query EOF                                   { q }
 
 query:
-  | SELECT WILDCARD FROM r=rels WHERE c=cond            { SelectAll (productify r, c) } 
-  | SELECT a=attrs FROM r=rels WHERE c=cond             { Select (a, productify r, c) }
-  | SELECT a=attrs FROM r1=rels JOIN r2=rels ON cj=cond WHERE cs=cond  { Select (a, Join (productify r1, productify r2, cj), cs) }
+  | SELECT WILDCARD FROM r=rels WHERE c=cond            { SelectAll (r, c) } 
+  | SELECT a=attrs FROM r=rels WHERE c=cond             { Select (a, r, c) }
+  | SELECT a=attrs FROM r1=rels JOIN r2=rels ON cj=cond WHERE cs=cond  { Select (a, Join (r1, r2, cj), cs) }
   | LPAR q1=query RPAR MINUS LPAR q2=query RPAR         { Minus (q1, q2) }
   | LPAR q1=query RPAR UNION LPAR q2=query RPAR         { Union (q1, q2) } 
 
@@ -41,8 +41,8 @@ attr_bind:
 attr: x=ID DOT y=ID                               { (x, y) }
 
 rels:
-  | x=rel                                         { [x] }
-  | x=rel COMMA xs=rels                           { x :: xs }
+  | x=rel                                         { Relation (x) }
+  | x=rel COMMA xs=rels                           { Product (x, xs) }
 
 rel:
   | f=FILE AS? x=ID                               { File (f, x) }
