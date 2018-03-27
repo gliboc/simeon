@@ -2,7 +2,7 @@
 
 open Ast
 open Algebra
-        
+
 exception Unhandled_In_Case
 
 let rec match_attr_cond a a' = match (a, a') with
@@ -39,7 +39,7 @@ and compile debug = function
                        | Select (Attrs p', rel', c') -> (p', rel', c')
                        | _ -> raise Unhandled_In_Case 
                    end
-               	   in compile debug (Select (Attrs p, Join (rel, rel', (match_attr_cond p_in p')), c'))  
+               	   in compile debug (Select (Attrs p, Join (rel, rel', (Ast_trans.match_attr_cond p_in p')), c'))  
                with Unhandled_In_Case ->
  		   let _ = if debug then Printf.printf "This case of IN is not handled\n" in                  
             	   Select (c_rel debug rel, c_cond debug (In (Attrs p_in, q_in)))

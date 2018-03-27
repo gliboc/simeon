@@ -10,6 +10,8 @@ let rec repl debug () =
     let query = Parser.main Lexer.token stream in
     begin
     if debug then Printf.printf "Your query: %s\n" (Ast.show query);
+    let query = Ast_trans.bubble query in
+    if debug then Printf.printf "Your new query: %s\n" (Ast.show query);
     let bytecode = Compiler.compile debug query in
     let _ = if debug then Printf.printf "Expression: %s\n" (Algebra.show bytecode)
     in Data.pprint_data (Interpreter.eval debug bytecode).inst
