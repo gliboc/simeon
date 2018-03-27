@@ -132,13 +132,13 @@ and eval debug = fun op ->
 	let inst = List.filter (fltr_rw debug attr cond) inst in 
           create_table attr inst "dummy"
             
-  | JoinProjectRename ((r, s), proj) ->
+  | JoinProjectRename (r, s, proj) ->
        let rr, ss = eval debug r, eval debug s in
-       let attr1 = rr.attr, attr2 = ss.attr
-       and inst1 = rr.inst, inst2 = ss.inst in
+       let attr1 = rr.attr and attr2 = ss.attr in
+       let inst1 = rr.inst and inst2 = ss.inst in
        let inst1 = List.map (drop_row proj attr1) inst1 in
        let inst2 = List.map (drop_row proj attr2) inst2 in 
-         create_table (r'.attr @ s'.attr) (cartesian r'.inst s'.inst) "dummy" in
+         create_table (drop_attr proj (attr1 @ attr2)) (cartesian inst1 inst2) "dummy" 
        
   end     
 
