@@ -6,8 +6,8 @@
  /  \ | |  | |   |   ||   [_ |     ||  |  |
  \    | |  | |   |   ||     ||     ||  |  |
   \___||____||___|___||_____| \___/ |__|__|
-  ```
-                                           
+```
+
 
 This project is being written by *Guillaume Duboc* and *Peio Borthelle*.
 
@@ -32,6 +32,8 @@ primitives for reading and writing files in CSV format.
 ### miniSQL
 
 `ast.ml` contains the miniSQL AST defined according to the grammar. Such expressions can be parsed from the miniSQL language using the code in `parser.mly`
+
+`ast_trans.ml` contains function for transforming the AST in order, for example, to eliminate the IN and NOT IN conditions (ie. transform them into JOIN statements).
 
 The file `compiler.ml` translates the miniSQL ast to the relational algebra.
 
@@ -59,16 +61,15 @@ Some working examples can be found in `tested_queries`
 ### What's working
 
 In the relational algebra, the following operators are working:
-- selection, projection, cartesian product, minus, union
-- join
-- renaming for columns and relations is implemented
+- selection, projection, cartesian product, minus, union, join
+- renaming for columns and relations
 
 In the miniSQL, the following commands are operationnal :
 - SELECT .. FROM .. WHERE ..
 - SELECT * FROM ..
 - UNION, UNION ALL, MINUS
 - ORDER BY .. (DESC)
-- Conditions IN, NOT IN
+- Conditions IN, NOT IN, translated to pure relationnal algebra joins
 - Conditions on advanced numerical expressions ('+', '-', '*')
 - Logical formulas (/\, \/, !)
 
@@ -91,3 +92,15 @@ we chose when implementing renaming.
 
 Union is a set union, so it deletes duplicata. We implemented UNION ALL to
 allow them.
+
+#### In and NotIn
+
+This part was a bit difficult. At first, we implemented a naive version using pattern matching
+to transform an In condition into a normal query, as suggested. But this could not work for nested
+queries, neither for combinations of In and Not In.
+
+So we built an ast treatment function, containt in `ast_trans.ml` that would :
+
+ - Transform a set of conditions into a DNF form
+ - ​
+
