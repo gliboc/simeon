@@ -6,7 +6,7 @@ let join_of_list = List.fold_left (fun r1 (r2, c) -> Join (r1, r2, c))
 %}
 
 %token EOF
-%token SELECT FROM WHERE AS IN MINUS UNION JOIN ON
+%token SELECT FROM WHERE AS IN MINUS UNION JOIN ON ORDER
 %token AND OR NOT EQ LT GT LEQ GEQ ADD SUB STAR DIV
 %token <string> ID FILE STRING
 %token <int> NUM
@@ -27,10 +27,12 @@ main:
   | q=query EOF                                   { q }
 
 query:
-  | SELECT p=proj r=from                          { Select (p, r, None) }
-  | SELECT p=proj r=from WHERE c=cond             { Select (p, r, Some c) }
-  | LPAR q1=query RPAR MINUS LPAR q2=query RPAR   { Minus (q1, q2) }
-  | LPAR q1=query RPAR UNION LPAR q2=query RPAR   { Union (q1, q2) }
+  | SELECT p=proj r=from                            { Select (p, r, None) }
+  | SELECT p=proj r=from ORDER a=attrs WHERE c=cond { Order (a, Select (p, r, Some c)) } 
+  | SELECT p=proj r=from ORDER a=attrs              { Order (a, Select (p, r, None)) }
+  | SELECT p=proj r=from WHERE c=cond               { Select (p, r, Some c) }
+  | LPAR q1=query RPAR MINUS LPAR q2=query RPAR     { Minus (q1, q2) }
+  | LPAR q1=query RPAR UNION LPAR q2=query RPAR     { Union (q1, q2) }
 
 proj:
   | STAR                                          { Star }

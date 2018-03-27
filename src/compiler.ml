@@ -54,3 +54,4 @@ and compile debug = function
 	end
     | Minus (q1, q2) -> Minus (compile debug q1, compile debug q2)
     | Union (q1, q2) -> Union (compile debug q1, compile debug q2)
+    | Order (a, q) -> Order (a, compile debug q)

@@ -97,7 +97,18 @@ and eval debug = fun op ->
                 end
        in let renamed_attr = rename s hash r'.attr in                                                                                                             
           create_table (renamed_attr) (r'.inst) (r'.id)
-  end     
+  
+  | Order (a, r) ->
+	let r' = eval debug r in
+ 	let cmp r1 r2 =
+ 		let v1 = get_attr_values a r1 [] in
+ 		let v2 = get_attr_values a r2 [] in
+ 		if (r1 = r2) then 0
+ 		else if (r1 < r2) then -1
+ 		else 1                 
+	in let ordered_inst = List.sort cmp r'.inst
+ 	in create_table (r'.attr) (ordered_inst) (r'.id)                      
+   end     
 
 
 

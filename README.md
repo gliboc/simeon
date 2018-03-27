@@ -50,10 +50,26 @@ In the relational algebra, the following operators are functioning:
 - selection, projection, cartesion product, relation, minus, union
 - `in` in the form of a standalone relational algebra operation. It should be
   replaced with its translation once join is implemented 
-- renaming is to be implemented soon
+- renaming for columns and relations is implemented
 - join is half-implemented too
 
 In the miniSQL, the following commands are operationnal :
 - (SELECT attrs | SELECT *) FROM .. WHERE ..
 - IN, UNION, MINUS
 - nested queries 
+
+
+### Details
+
+#### Renaming
+We noticed that the renaming operation was a bit shady for a table 
+resulting from a cartesion product between relations having 
+same attribute names.
+
+Example from sqlite :
+`(SELECT e.a, f.a FROM T AS e, T' AS f) AS g`
+
+In this case, T and T' having attribute a, sqlite's reaction is
+to number the columns in conflict. Therefore, `e.a` and `f.a` would
+respectively become `g.a` and `g.a:1`. This is the behavior 
+we chose when implementing renaming.

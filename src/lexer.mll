@@ -23,6 +23,7 @@ rule token = parse
   | "NOT"      { NOT }
   | "JOIN"     { JOIN }
   | "ON"       { ON }
+  | "ORDER BY" { ORDER }
   | "*"        { STAR }
   | '+'        { ADD }
   | '-'        { SUB }

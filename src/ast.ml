@@ -31,6 +31,7 @@ type t =
   | Select of proj * rel * t cond option
   | Minus of t * t
   | Union of t * t
+  | Order of attr_bind list * t
 [@@deriving show]
 
 and rel =
@@ -40,3 +41,9 @@ and rel =
   | Product of rel * rel
 [@@deriving show]
 
+
+let rec disjunction = function
+    | [] -> failwith "Empty DNF"
+    | [t] -> t
+    | t :: q -> Union (t, disjunction q)
+                             
