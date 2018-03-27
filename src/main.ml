@@ -3,20 +3,20 @@
 open Algebra
 
 
-let rec repl () =
+let rec repl debug () =
   let _ = print_string "|> " in
   let stream = Lexing.from_string (read_line ()) in
   let _ =
     let query = Parser.main Lexer.token stream in
     begin
-    Printf.printf "Your query: %s\n" (Ast.show query);
-    let bytecode = Compiler.compile query in
-    let _ = Printf.printf "Expression: %s\n" (Algebra.show bytecode)
-    in Data.pprint_data (Interpreter.eval bytecode).inst
+    if debug then Printf.printf "Your query: %s\n" (Ast.show query);
+    let bytecode = Compiler.compile debug query in
+    let _ = if debug then Printf.printf "Expression: %s\n" (Algebra.show bytecode)
+    in Data.pprint_data (Interpreter.eval debug bytecode).inst
     end
-  in repl ()
+  in repl debug ()
 
-let wrap_repl () =
+let wrap_repl debug () =
   let _ = print_endline
 "  _____ ____  ___ ___    ___   ___   ____
  / ___/|    ||   |   |  /  _] /   \\ |    \\
@@ -26,18 +26,26 @@ let wrap_repl () =
  \\    | |  | |   |   ||     ||     ||  |  |
   \\___||____||___|___||_____| \\___/ |__|__|
   "
-  in repl ()
+  in repl debug ()
+
+let ask_debug () =
+    let _ = Printf.printf "Debug mode? y/n\n" in
+    let answ = read_line () in
+    if answ = "y" then true
+    else false
+      
 
 let () =
+    let debug = ask_debug () in
   if Array.length Sys.argv > 1 then
     let chan = open_in Sys.argv.(1) in
     let stream = Lexing.from_channel chan in
     let query = Parser.main Lexer.token stream in
     begin
-      Printf.printf "Your query: %s\n" (Ast.show query);
-      let bytecode = Compiler.compile query in
-      let _ = Printf.printf "Expression: %s\n" (Algebra.show bytecode)
-      in Data.pprint_data (Interpreter.eval bytecode).inst
+      if debug then Printf.printf "Your query: %s\n" (Ast.show query);
+      let bytecode = Compiler.compile debug query in
+      let _ = if debug then Printf.printf "Expression: %s\n" (Algebra.show bytecode)
+      in Data.pprint_data (Interpreter.eval debug bytecode).inst
     end
   else
-    wrap_repl ()
+    wrap_repl debug ()
