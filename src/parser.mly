@@ -7,7 +7,7 @@ let join_of_list = List.fold_left (fun r1 (r2, c) -> Join (r1, r2, c))
 
 %token EOF
 %token SELECT FROM WHERE AS IN MINUS UNION JOIN ON
-%token AND OR NOT EQ LT ADD SUB STAR DIV
+%token AND OR NOT EQ LT GT LEQ GEQ ADD SUB STAR DIV
 %token <string> ID FILE STRING
 %token <int> NUM
 %token COMMA DOT LPAR RPAR
@@ -68,6 +68,9 @@ cond:
   | c1=cond AND c2=cond                           { And (c1, c2) }
   | e1=expr EQ e2=expr                            { Eq (e1, e2) }
   | e1=expr LT e2=expr                            { Lt (e1, e2) }
+  | e1=expr GT e2=expr                            { And (Not (Lt (e1, e2)), Not (Eq (e1, e2))) }
+  | e1=expr GEQ e2=expr				  { Not (Lt (e1, e2)) }
+  | e1=expr LEQ e2=expr                           { Or (Lt (e1, e2), Eq (e1, e2)) }
   | e=expr IN LPAR q=query RPAR                   { In (e, q) }
   | e=expr NOT IN LPAR q=query RPAR               { Not (In (e, q)) }
 
