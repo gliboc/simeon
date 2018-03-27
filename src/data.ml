@@ -3,20 +3,31 @@
 open Csv
 
 
+type value =
+  | Num of int
+  | String of string
+[@@deriving show]
+
+let value_of_string s =
+  try Num (int_of_string s)
+  with Failure _ -> String s
+
 type table =
   { mutable attr : Ast.attr_bind list;
     mutable inst : string list list;
     mutable id : string}
 [@@deriving show]
 
-type instance = string list list [@@deriving show]
+type instance = value list list [@@deriving show]
 
 let create_table attr inst name =
-    { attr = attr; inst = inst; id = name}
+    { attr = attr;
+      inst = List.map (List.map value_of_string) inst;
+      id = name }
 
 let rec create_attr id = function
     | [] -> []
-    | x :: xs -> ((id, x), None) :: create_attr id xs             
+    | x :: xs -> ((id, x), None) :: create_attr id xs
 
 let read_csv filename =
   let ic = of_channel (open_in filename) in
@@ -27,12 +38,4 @@ let write_to_csv data filename =
   let oc = to_channel (open_out filename) in
   let _ = output_all oc data in close_out oc
 
-let rec pprint_data = function
-    | [] -> ()
-    | x :: xs -> let _ = Printf.printf "%s\n"
-                 (List.fold_right (fun x s -> x ^ " " ^ s)
-                 		 x "") ;
-      		 in pprint_data xs
-             
-    
-
+let rec pprint_data d = List.iter (fun x -> print_endline (String.concat x))
