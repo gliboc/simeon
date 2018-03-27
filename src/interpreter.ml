@@ -51,6 +51,8 @@ and eval debug = fun op ->
       let remove_from_right xs = List.fold_right uniq_cons xs [] in
       let r', s' = eval debug r, eval debug s in
       let _ = if debug then Printf.printf "Evaluating %s\n\n" (Algebra.show op) in
+      let _ = if debug then Printf.printf "First table looks like :\n %s\n\n" (show_table r') in
+      let _ = if debug then Printf.printf "Second table looks like :\n %s\n\n" (show_table s') in
       let atr, ats = r'.attr , s'.attr in
       if atr = ats then
         create_table atr (remove_from_right (r'.inst @ s'.inst)) "dummy"
@@ -69,16 +71,6 @@ and eval debug = fun op ->
       let _ = if debug then Printf.printf "Table looks like :\n %s\n\n" (show_table r') in
       let _ = if debug then Printf.printf "Evaluating index of projection %s\n" (List.fold_left (fun a b -> a^(show_attr_bind b)) "" proj) in
       let _ = if debug then Printf.printf "On attributes %s\n\n" (List.fold_left (fun a b -> a^(show_attr_bind b)) "" r'.attr) in
-        let rec drop_attr new_attr = function
-          | (x :: xs) when mem_attr x new_attr -> x :: (drop_attr new_attr xs)
-          | (x :: xs) -> drop_attr new_attr xs
-          | [] -> []
-        in
-        let rec drop_row new_attr a r = match (a, r) with
-          | ((x :: xs), (rw :: rs)) when mem_attr x new_attr -> rw :: (drop_row new_attr xs rs)
-          | ((x :: xs), (_ :: rs)) -> drop_row new_attr xs rs
-          | (([], _) |  (_, [])) -> []
-        in 
       	create_table (drop_attr proj r'.attr) (List.map (drop_row proj r'.attr) r'.inst) r'.id
   
   | Select (r, cond) ->
@@ -90,6 +82,8 @@ and eval debug = fun op ->
   | Minus (r,s) ->
       let r', s' = eval debug r, eval debug s in
       let _ = if debug then Printf.printf "Evaluating %s\n\n" (Algebra.show op) in
+      let _ = if debug then Printf.printf "First table looks like :\n %s\n\n" (show_table r') in
+      let _ = if debug then Printf.printf "Second table looks like :\n %s\n\n" (show_table s') in
       if r'.attr = s'.attr then
         create_table (r'.attr) (List.filter (fun row -> not (List.mem row s'.inst)) r'.inst) r'.id
       else
@@ -127,8 +121,25 @@ and eval debug = fun op ->
  		else if (v1 < v2) then mult * (-1)
  		else mult                 
 	in let ordered_inst = List.sort cmp r'.inst
- 	in create_table (r'.attr) (ordered_inst) (r'.id)                      
-   end     
+ 	in create_table (r'.attr) (ordered_inst) (r'.id)
+                           
+  | ReadSelectProjectRename ((d, id), cond, proj) ->
+      
+        let l = read_csv (String.sub d 1 (String.length d - 2)) in
+        let attr = create_attr id (List.hd (l)) in 
+	let inst = List.map (drop_row proj attr) (List.tl (l)) in 
+        let attr = drop_attr proj attr in 
+	let inst = List.filter (fltr_rw debug attr cond) inst in 
+          create_table attr inst "dummy"
+            
+ (* | JoinProjectRename ((r, s), proj) ->
+       let rr, ss = eval debug r, eval debug s in
+       let attr1 = rr.attr, attr2 = ss.attr
+       and inst1 = rr.inst, inst2 = ss.inst in
+       let inst1 = List.map (drop_row proj attr1) inst1 in
+       let inst2 = List.map (drop_row proj attr2) inst2 in 
+ *)
+  end     
 
 
 

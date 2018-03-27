@@ -63,4 +63,13 @@ let rec get_attr_values attr row acc = function
     | x :: xs -> let v = get_val attr row x in
                  get_attr_values attr row (v :: acc) xs   
 
+let rec drop_attr new_attr = function
+  | (x :: xs) when mem_attr x new_attr -> x :: (drop_attr new_attr xs)
+  | (x :: xs) -> drop_attr new_attr xs
+  | [] -> []
+
+let rec drop_row new_attr a r = match (a, r) with
+  | ((x :: xs), (rw :: rs)) when mem_attr x new_attr -> rw :: (drop_row new_attr xs rs)
+  | ((x :: xs), (_ :: rs)) -> drop_row new_attr xs rs
+  | (([], _) |  (_, [])) -> []
 
