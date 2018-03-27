@@ -23,11 +23,11 @@ let check_in tuple table =
 let cartesian l l' =
   List.concat (List.map (fun e -> List.map (fun e' -> e @ e') l') l)
 
-let rec attr_mem a = function
+let rec mem_attr a = function
     | [] -> false
     | ((a', _) :: _) when (fst a) = a' -> true
-    | ((_, al) :: _) when (snd a) = al -> true
-    | _ :: xs -> attr_mem a xs             
+    | ((_, Some al) :: _) when (snd a) = (Some al) -> true
+    | _ :: xs -> mem_attr a xs             
     
 
 let rec get_attr_index a i = function
@@ -42,7 +42,7 @@ let rec make_list n v = match n with
     | _ -> failwith "Can't create list : negative length"                          
 
 let slct_ind attr l = 
-    List.map (fun a -> attr_mem a attr) l  
+    List.map (fun a -> mem_attr a attr) l  
 
 let rec drop_items proj l = match (l, proj) with
   | [], _ -> []

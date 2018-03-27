@@ -3,7 +3,7 @@
 type t =
   | Select of t * t Ast.cond
   | Project of t * Ast.attr_bind list
-  | Order of Ast.attr_bind list * t
+  | Order of Ast.attr_bind list * t * bool
   | Product of t * t
   | File of string * string
   | Minus of t * t

@@ -27,7 +27,7 @@ and fltr_rw debug attr c row = match c with
     | Not (op) -> not (fltr_rw debug attr op row)
 
 and eval debug = fun op -> 
-  let _ = if debug then Printf.printf "Evaluating %s\n\n" (Algebra.show op) in
+  let _ = if false then Printf.printf "Evaluating %s\n\n" (Algebra.show op) in
   begin match op with
   | File (d, id) -> let _ = if debug then Printf.printf "Loading file %s\n" d in
                         let l = read_csv (String.sub d 1 (String.length d - 2)) in
@@ -56,11 +56,19 @@ and eval debug = fun op ->
       let r' = eval debug r in
       let _ = if debug then Printf.printf "Evaluating %s\n\n" (Algebra.show op) in
       let _ = if debug then Printf.printf "Table looks like :\n %s\n\n" (show_table r') in
-      let slct = slct_ind proj r'.attr in
       let _ = if debug then Printf.printf "Evaluating index of projection %s\n" (List.fold_left (fun a b -> a^(show_attr_bind b)) "" proj) in
-      let _ = if debug then Printf.printf "Index to be kept are:\n%s\n\n" (show_index slct) in
       let _ = if debug then Printf.printf "On attributes %s\n\n" (List.fold_left (fun a b -> a^(show_attr_bind b)) "" r'.attr) in
-        create_table (drop_items slct r'.attr) (List.map (drop_items slct) r'.inst) r'.id
+        let rec drop_attr new_attr = function
+          | (x :: xs) when mem_attr x new_attr -> x :: (drop_attr new_attr xs)
+          | (x :: xs) -> drop_attr new_attr xs
+          | [] -> []
+        in
+        let rec drop_row new_attr a r = match (a, r) with
+          | ((x :: xs), (rw :: rs)) when mem_attr x new_attr -> rw :: (drop_row new_attr xs rs)
+          | ((x :: xs), (_ :: rs)) -> drop_row new_attr xs rs
+          | (([], _) |  (_, [])) -> []
+        in 
+      	create_table (drop_attr proj r'.attr) (List.map (drop_row proj r'.attr) r'.inst) r'.id
   
   | Select (r, cond) ->
       let r' = eval debug r in
@@ -98,14 +106,15 @@ and eval debug = fun op ->
        in let renamed_attr = rename s hash r'.attr in                                                                                                             
           create_table (renamed_attr) (r'.inst) (r'.id)
   
-  | Order (a, r) ->
+  | Order (a, r, b) ->
 	let r' = eval debug r in
+ 	let mult = (if b then (-1) else 1) in
  	let cmp r1 r2 =
- 		let v1 = get_attr_values a r1 [] in
- 		let v2 = get_attr_values a r2 [] in
- 		if (r1 = r2) then 0
- 		else if (r1 < r2) then -1
- 		else 1                 
+ 		let v1 = get_attr_values r'.attr r1 [] a in
+ 		let v2 = get_attr_values r'.attr r2 [] a in
+ 		if (v1 = v2) then 0
+ 		else if (v1 < v2) then mult * (-1)
+ 		else mult                 
 	in let ordered_inst = List.sort cmp r'.inst
  	in create_table (r'.attr) (ordered_inst) (r'.id)                      
    end     

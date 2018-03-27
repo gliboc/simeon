@@ -24,6 +24,7 @@ rule token = parse
   | "JOIN"     { JOIN }
   | "ON"       { ON }
   | "ORDER BY" { ORDER }
+  | "DESC"     { DESC }
   | "*"        { STAR }
   | '+'        { ADD }
   | '-'        { SUB }

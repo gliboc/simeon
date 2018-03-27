@@ -27,7 +27,7 @@ and match_attr_cond a a' = match (a, a') with
 and compile debug = function
     | Select (Attrs p, rel, c) -> (* In transformation doesn't work with * yet *)
         let r = 
-          begin match c with
+          (begin match c with
           | None -> c_rel debug rel
           | Some (In (Attrs p_in, q_in)) ->
                let _ = if debug then Printf.printf "Transforming an IN into a JOIN at compilation\n" in
@@ -45,7 +45,7 @@ and compile debug = function
             	   Select (c_rel debug rel, c_cond debug (In (Attrs p_in, q_in)))
                end
           | Some c -> Select (c_rel debug rel, c_cond debug c)           
-          end 
+          end) 
 	  in Project (r, p)                                                                       
     | Select (Star, rel, c) ->
         begin match c with
@@ -54,4 +54,4 @@ and compile debug = function
 	end
     | Minus (q1, q2) -> Minus (compile debug q1, compile debug q2)
     | Union (q1, q2) -> Union (compile debug q1, compile debug q2)
-    | Order (a, q) -> Order (a, compile debug q)
+    | Order (a, q, b) -> Order (a, compile debug q, b)
