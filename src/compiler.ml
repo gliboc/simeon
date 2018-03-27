@@ -25,33 +25,16 @@ and c_rel : (bool -> Ast.rel -> Algebra.t) = fun debug -> function
     | Product (r1, r2) -> Product (c_rel debug r1, c_rel debug r2)
 
 and compile debug = function
-    | Select (Attrs p, rel, c) -> (* In transformation doesn't work with * yet *)
+    | Select (p, rel, c) -> (* In transformation doesn't work with * yet *)
         let r = 
           (begin match c with
           | None -> c_rel debug rel
-          | Some (In (Attrs p_in, q_in)) ->
-               let _ = if debug then Printf.printf "Transforming an IN into a JOIN at compilation\n" in
-               begin
-               try    
-                   let (p', rel', c') =
-                   begin 
-                       match q_in with
-                       | Select (Attrs p', rel', c') -> (p', rel', c')
-                       | _ -> raise Unhandled_In_Case 
-                   end
-               	   in compile debug (Select (Attrs p, Join (rel, rel', (Ast_trans.match_attr_cond p_in p')), c'))  
-               with Unhandled_In_Case ->
- 		   let _ = if debug then Printf.printf "This case of IN is not handled\n" in                  
-            	   Select (c_rel debug rel, c_cond debug (In (Attrs p_in, q_in)))
-               end
           | Some c -> Select (c_rel debug rel, c_cond debug c)           
-          end) 
-	  in Project (r, p)                                                                       
-    | Select (Star, rel, c) ->
-        begin match c with
-          | None -> c_rel debug rel
-          | Some c -> Select (c_rel debug rel, c_cond debug c) 
-	end
+          end)
+          in begin match p with
+            | Star -> r
+            | Attrs q -> Project (r, q)                                 
+          end
     | Minus (q1, q2) -> Minus (compile debug q1, compile debug q2)
     | Union (q1, q2) -> Union (compile debug q1, compile debug q2)
     | UnionAll (q1, q2) -> UnionAll (compile debug q1, compile debug q2)

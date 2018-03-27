@@ -63,6 +63,10 @@ Some working examples can be found in `tested_queries`
 In the relational algebra, the following operators are working:
 - selection, projection, cartesian product, minus, union, join
 - renaming for columns and relations
+- the two special operator ReadSelectProjectRename and JoinProjectRename
+  - ReadSelectProjectRename seems more efficient as it avoids the few table creations
+    that would happen if we had chained the operators, by constructing the attributes and the instance at once.
+  - JoinProjectRename takes advantage of projecting before doing the cartesian product of the join. Therefore, there are less operations than usual.
 
 In the miniSQL, the following commands are operationnal :
 - SELECT .. FROM .. WHERE ..
@@ -102,5 +106,5 @@ queries, neither for combinations of In and Not In.
 So we built an ast treatment function, containt in `ast_trans.ml` that would :
 
  - Transform a set of conditions into a DNF form
- - ​
+ - Purge the conjunctions from IN and NOTIN clauses
 

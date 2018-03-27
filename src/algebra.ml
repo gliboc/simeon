@@ -12,5 +12,5 @@ type t =
   | Join of t * t * t Ast.cond
   | Rename of t * string
   | ReadSelectProjectRename of (string * string) * t Ast.cond * Ast.attr_bind list 
-  | JoinProjectRename of t * t * Ast.attr_bind list
+  | JoinProjectRename of t * t * t Ast.cond * Ast.attr_bind list
 [@@deriving show]

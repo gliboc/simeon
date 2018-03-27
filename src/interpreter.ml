@@ -132,7 +132,7 @@ and eval debug = fun op ->
 	let inst = List.filter (fltr_rw debug attr cond) inst in 
           create_table attr inst "dummy"
             
-  | JoinProjectRename (r, s, proj) ->
+  | JoinProjectRename (r, s, c, proj) ->
        let rr, ss = eval debug r, eval debug s in
        let attr1 = rr.attr and attr2 = ss.attr in
        let inst1 = rr.inst and inst2 = ss.inst in
