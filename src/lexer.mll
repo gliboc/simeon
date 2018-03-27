@@ -18,6 +18,7 @@ rule token = parse
   | "IN"       { IN }
   | "MINUS"    { MINUS }
   | "UNION"    { UNION }
+  | "UNION ALL"{ UNIONALL }
   | "AND"      { AND }
   | "OR"       { OR }
   | "NOT"      { NOT }

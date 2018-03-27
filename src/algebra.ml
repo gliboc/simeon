@@ -8,6 +8,7 @@ type t =
   | File of string * string
   | Minus of t * t
   | Union of t * t
+  | UnionAll of t * t
   | Join of t * t * t Ast.cond
   | Rename of t * string
 [@@deriving show]

@@ -37,7 +37,7 @@ and eval debug = fun op ->
                         let _ = if debug then Printf.printf "Table looks like :\n%s\n\n" (show_table tab) in
                         tab
   
-  | Union (r, s) ->
+  | UnionAll (r, s) ->
       let r', s' = eval debug r, eval debug s in
       let _ = if debug then Printf.printf "Evaluating %s\n\n" (Algebra.show op) in
       let atr, ats = r'.attr , s'.attr in
@@ -46,6 +46,17 @@ and eval debug = fun op ->
       else
         failwith "Attributes are not compatible for union"
   
+  | Union (r, s) ->
+      let uniq_cons x xs = if List.mem x xs then xs else x :: xs in
+      let remove_from_right xs = List.fold_right uniq_cons xs [] in
+      let r', s' = eval debug r, eval debug s in
+      let _ = if debug then Printf.printf "Evaluating %s\n\n" (Algebra.show op) in
+      let atr, ats = r'.attr , s'.attr in
+      if atr = ats then
+        create_table atr (remove_from_right (r'.inst @ s'.inst)) "dummy"
+      else
+        failwith "Attributes are not compatible for union"
+ 
   | Product (r, s) ->
       let r', s' = eval debug r, eval debug s in
       let _ = if debug then Printf.printf "Evaluating %s\n\n" (Algebra.show op) in
@@ -89,7 +100,6 @@ and eval debug = fun op ->
  
   | Rename (r, s) -> 
        let r' = eval debug r in
-       
        let hash = Hashtbl.create (List.length r'.attr) in
        let rec rename id hash = function
           | ((rel, att), al) :: xs when Hashtbl.mem hash att ->  
@@ -103,6 +113,7 @@ and eval debug = fun op ->
                    Hashtbl.add hash att 1;
                    ((id, att), al) :: (rename id hash xs)
                 end
+          | [] -> []
        in let renamed_attr = rename s hash r'.attr in                                                                                                             
           create_table (renamed_attr) (r'.inst) (r'.id)
   

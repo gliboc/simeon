@@ -6,7 +6,7 @@ let join_of_list = List.fold_left (fun r1 (r2, c) -> Join (r1, r2, c))
 %}
 
 %token EOF
-%token SELECT FROM WHERE AS IN MINUS UNION JOIN ON ORDER
+%token SELECT FROM WHERE AS IN MINUS UNION UNIONALL JOIN ON ORDER
 %token AND OR NOT EQ LT GT LEQ GEQ ADD SUB STAR DIV DESC
 %token <string> ID FILE STRING
 %token <int> NUM
@@ -35,6 +35,7 @@ query:
   | SELECT p=proj r=from WHERE c=cond                    { Select (p, r, Some c) }
   | LPAR q1=query RPAR MINUS LPAR q2=query RPAR          { Minus (q1, q2) }
   | LPAR q1=query RPAR UNION LPAR q2=query RPAR          { Union (q1, q2) }
+  | LPAR q1=query RPAR UNIONALL LPAR q2=query RPAR       { UnionAll (q1, q2) }
 
 proj:
   | STAR                                          { Star }

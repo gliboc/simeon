@@ -31,6 +31,7 @@ type t =
   | Select of proj * rel * t cond option
   | Minus of t * t
   | Union of t * t
+  | UnionAll of t * t
   | Order of attr_bind list * t * bool
 [@@deriving show]
 

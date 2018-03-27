@@ -54,8 +54,13 @@ In the relational algebra, the following operators are functioning:
 - join is half-implemented too
 
 In the miniSQL, the following commands are operationnal :
-- (SELECT attrs | SELECT *) FROM .. WHERE ..
-- IN, UNION, MINUS
+- SELECT .. FROM .. WHERE ..
+- SELECT * FROM ..
+- UNION, MINUS
+- ORDER BY .. (DESC)
+- Conditions IN, NOTIN
+- Conditions on advanced numerical expressions ('+', '-', '*')
+- Logical formulas (/\, \/, !)
 - nested queries 
 
 
@@ -73,3 +78,8 @@ In this case, T and T' having attribute a, sqlite's reaction is
 to number the columns in conflict. Therefore, `e.a` and `f.a` would
 respectively become `g.a` and `g.a:1`. This is the behavior 
 we chose when implementing renaming.
+
+### Union
+
+Union is a set union, so it deletes duplicata. We implemented UNION ALL to
+allow them.
