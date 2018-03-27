@@ -79,7 +79,13 @@ and eval debug = fun op ->
   | Join (r, s, c) ->
       eval debug (Select (Product (r, s), c))
  
-  | Rename (_) -> (*TODO*) failwith "Implement renaming"
+  | Rename (r, s) -> 
+       let r' = eval debug r in
+       let rec rename id = function
+           | ((rel, att), al) :: xs -> ((s, att), al) :: (rename id xs)
+           | [] -> []
+       in let renamed_attr = rename s r'.attr
+       in create_table (renamed_attr) (r'.inst) (r'.id)
           
   end     
 
