@@ -74,9 +74,6 @@ and bubble = function
           | _ -> None in
         (r, c) in
       let (r', c') = List.fold_left handle_in
-        (*(fun (r, c) x -> match in_to_join r x with
-          | r, None -> (r, c)
-          | r, Some c' -> (r, And (c, c')))*)
         (r, c) ys in
       List.fold_left
         (fun q x ->

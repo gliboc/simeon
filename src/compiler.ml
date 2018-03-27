@@ -7,7 +7,7 @@ exception Unhandled_In_Case
 
 let rec match_attr_cond a a' = match (a, a') with
     | ([], _ | _, []) -> failwith "In attributes do not match"
-    | [x], [t] -> Eq (Attr x, Attr t)          
+    | [x], [t] -> Eq (Attr x, Attr t)
     | x :: xs, t :: q -> And (Eq (Attr x, Attr t), match_attr_cond xs q)
 
 let rec c_cond debug = function
@@ -26,14 +26,14 @@ and c_rel : (bool -> Ast.rel -> Algebra.t) = fun debug -> function
 
 and compile debug = function
     | Select (p, rel, c) -> (* In transformation doesn't work with * yet *)
-        let r = 
+        let r =
           (begin match c with
           | None -> c_rel debug rel
-          | Some c -> Select (c_rel debug rel, c_cond debug c)           
+          | Some c -> Select (c_rel debug rel, c_cond debug c)
           end)
           in begin match p with
             | Star -> r
-            | Attrs q -> Project (r, q)                                 
+            | Attrs q -> Project (r, q)
           end
     | Minus (q1, q2) -> Minus (compile debug q1, compile debug q2)
     | Union (q1, q2) -> Union (compile debug q1, compile debug q2)

@@ -47,4 +47,3 @@ let rec disjunction = function
     | [] -> failwith "Empty DNF"
     | [t] -> t
     | t :: q -> Union (t, disjunction q)
-                             
