@@ -26,24 +26,31 @@ and match_attr_cond (a : attr_bind list) a' = match (a, a') with
 
 and compile = function
     | Select (Attrs p, rel, c) -> (* In transformation doesn't work with * yet *)
-        let r = (match c with
+        let r = 
+          begin match c with
           | None -> c_rel rel
           | Some (In (Attrs p_in, q_in)) ->
+               let _ = Printf.printf "Transforming an IN into a JOIN at compilation\n" in
+               begin
                try    
-               let (p', rel', c') =
-               (begin match q_in with
-                   | Select (Attrs p', rel', c') -> (p', rel', c')
-                   | _ -> raise Unhandled_In_Case end)
-               in compile (Select (Join (c_rel rel, c_rel rel', c_cond (match_attr_cond p_in p')), c'))  
-               with Unhandled_In_Case -> 
-            		Select (c_rel rel, c_cond (In (e, q))))
-        in Project (r, p)                                                                       
-    | Select (p, rel, c) ->
-        let r = match c with
+                   let (p', rel', c') =
+                   begin 
+                       match q_in with
+                       | Select (Attrs p', rel', c') -> (p', rel', c')
+                       | _ -> raise Unhandled_In_Case 
+                   end
+               	   in compile (Select (Attrs p, Join (rel, rel', (match_attr_cond p_in p')), c'))  
+               with Unhandled_In_Case ->
+ 		   let _ = Printf.printf "This case of IN is not handled\n" in                  
+            	   Select (c_rel rel, c_cond (In (Attrs p_in, q_in)))
+               end
+          | Some c -> Select (c_rel rel, c_cond c)           
+          end 
+	  in Project (r, p)                                                                       
+    | Select (Star, rel, c) ->
+        begin match c with
           | None -> c_rel rel
-          | Some c -> Select (c_rel rel, c_cond c) in
-        (match p with
-          | Star -> r
-          | Attrs p -> Project (r, p))
+          | Some c -> Select (c_rel rel, c_cond c) 
+	end
     | Minus (q1, q2) -> Minus (compile q1, compile q2)
     | Union (q1, q2) -> Union (compile q1, compile q2)
