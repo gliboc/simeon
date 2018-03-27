@@ -68,9 +68,9 @@ cond:
   | c1=cond AND c2=cond                           { And (c1, c2) }
   | e1=expr EQ e2=expr                            { Eq (e1, e2) }
   | e1=expr LT e2=expr                            { Lt (e1, e2) }
-  | e1=expr GT e2=expr                            { And (Not (Lt (e1, e2)), Not (Eq (e1, e2))) }
-  | e1=expr GEQ e2=expr				  { Not (Lt (e1, e2)) }
-  | e1=expr LEQ e2=expr                           { Or (Lt (e1, e2), Eq (e1, e2)) }
+  | e1=expr GT e2=expr                            { Lt (e2, e1) }
+  | e1=expr GEQ e2=expr                           { Not (Lt (e1, e2)) }
+  | e1=expr LEQ e2=expr                           { Not (Lt (e2, e1)) }
   | p=proj IN LPAR q=query RPAR                   { In (p, q) }
   | p=proj NOT IN LPAR q=query RPAR               { Not (In (p, q)) }
 
