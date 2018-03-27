@@ -71,8 +71,8 @@ cond:
   | e1=expr GT e2=expr                            { And (Not (Lt (e1, e2)), Not (Eq (e1, e2))) }
   | e1=expr GEQ e2=expr				  { Not (Lt (e1, e2)) }
   | e1=expr LEQ e2=expr                           { Or (Lt (e1, e2), Eq (e1, e2)) }
-  | e=expr IN LPAR q=query RPAR                   { In (e, q) }
-  | e=expr NOT IN LPAR q=query RPAR               { Not (In (e, q)) }
+  | p=proj IN LPAR q=query RPAR                   { In (p, q) }
+  | p=proj NOT IN LPAR q=query RPAR               { Not (In (p, q)) }
 
 expr:
   | LPAR e=expr RPAR                              { e }

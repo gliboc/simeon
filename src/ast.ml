@@ -23,7 +23,7 @@ type 'a cond =
   | And of 'a cond * 'a cond
   | Eq of expr * expr
   | Lt of expr * expr
-  | In of expr * 'a
+  | In of proj * 'a
   | Not of 'a cond
 [@@deriving show]
 
