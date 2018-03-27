@@ -81,12 +81,22 @@ and eval debug = fun op ->
  
   | Rename (r, s) -> 
        let r' = eval debug r in
-       let rec rename id = function
-           | ((rel, att), al) :: xs -> ((s, att), al) :: (rename id xs)
-           | [] -> []
-       in let renamed_attr = rename s r'.attr
-       in create_table (renamed_attr) (r'.inst) (r'.id)
-          
+       
+       let hash = Hashtbl.create (List.length r'.attr) in
+       let rec rename id hash = function
+          | ((rel, att), al) :: xs when Hashtbl.mem hash att ->  
+                  let ix = Hashtbl.find hash att in 
+                  begin
+                      Hashtbl.replace hash att (ix+1);
+                      ((id, att ^ ":" ^ (string_of_int ix)), al) :: (rename id hash xs)
+                  end
+          | ((rel, att), al) :: xs ->
+                begin
+                   Hashtbl.add hash att 1;
+                   ((id, att), al) :: (rename id hash xs)
+                end
+       in let renamed_attr = rename s hash r'.attr in                                                                                                             
+          create_table (renamed_attr) (r'.inst) (r'.id)
   end     
 
 
