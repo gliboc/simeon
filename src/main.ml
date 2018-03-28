@@ -1,7 +1,7 @@
 (* Contains the REPL for miniSQL, as well as the script
    for loading miniSQL queries in *.sql files *)
 open Algebra
-
+open Optimizer
 
 let rec repl debug () =
   let _ = print_string "|> " in
@@ -12,7 +12,7 @@ let rec repl debug () =
     if debug then Printf.printf "Your query: %s\n" (Ast.show query);
     let query = Ast_trans.bubble query in
     if debug then Printf.printf "Your new query: %s\n" (Ast.show query);
-    let bytecode = Compiler.compile debug query in
+    let bytecode = Optimizer.opti (Compiler.compile debug query) in
     let _ = if debug then Printf.printf "Expression: %s\n" (Algebra.show bytecode)
     in Data.pprint_data (Interpreter.eval debug bytecode).inst
     end

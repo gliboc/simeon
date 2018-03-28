@@ -37,6 +37,11 @@ primitives for reading and writing files in CSV format.
 
 The file `compiler.ml` translates the miniSQL ast to the relational algebra.
 
+### Optimizer
+
+`optimizer.ml` contains a function for optimizing the bytecode. It consists simply in pushing down the projections
+over the selections when the selection attributes are a subset of the projection ones.
+
 ### Autres
 
 `testing_renaming.ml` montre un exemple de fonctionnement du renaming de relation, prenant en compte les possibles conflits.

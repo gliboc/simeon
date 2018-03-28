@@ -1,0 +1,1 @@
+SELECT e.Year FROM "cars.csv" e WHERE e.Year + 1 = 2000

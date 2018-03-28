@@ -1,0 +1,1 @@
+SELECT e.Year FROM "cars.csv" e WHERE (e.Year * e.Year) - 3995995 = 0 + 12 / 2
