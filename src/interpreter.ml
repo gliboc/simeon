@@ -4,14 +4,14 @@ open Data
 open Ast
 open Utils
 
-let eval_expr attrs row = fun x ->
-    let rec compute a b op =
+let eval_expr attrs (row : Data.value list) : (_ -> Data.value) = fun x ->
+    let rec compute a b op : Data.value =
  	let ae = aux a in
 	let be = aux b in 
 	match (ae, be) with
            | (Num x, Num y) -> Num (op x y)               
            | _ -> failwith "Type error"
-    and aux = function
+    and aux : (_ -> Data.value) = function
     | Add (a, b) -> compute a b (+)
     | Sub (a, b) -> compute a b (-)
     | Mult (a, b) -> compute a b ( * )
@@ -24,33 +24,24 @@ let eval_expr attrs row = fun x ->
                         
 let rec fltr debug attr a1 a2 cmp row =
     let (a, a') = (get_val attr row a1, get_val attr row a2) in
-    let _ = if debug then Printf.printf "Comparing values %s and %s\n" a a' in
-    let resu = cmp a a' in
-    let _ = if debug then Printf.printf "The result is : %s\n\n" (string_of_bool resu) in resu
+    cmp a a'
 
 and fltr_cst debug attr a1 cst cmp row =
     let k = get_val attr row a1 in
         cmp k cst
 
-and fltr_rw debug attr c row = match c with
-    | Eq (Attr a1, Attr a2) -> fltr debug attr a1 a2 (=) row
-    | Lt (Attr a1, Attr a2) -> fltr debug attr a1 a2 (<) row
-    | Eq (Attr a1, String v) -> fltr_cst debug attr a1 v (=) row
-    | Lt (Attr a1, String v) -> fltr_cst debug attr a1 v (<) row
+and fltr_rw debug attr c (row : Data.value list) = match c with
+    | Eq (e1, e2) -> (=) (eval_expr attr row e1) (eval_expr attr row e2)
+    | Lt (e1, e2) -> (<) (eval_expr attr row e1) (eval_expr attr row e2)
     | And (c1, c2) -> (fltr_rw debug attr c1 row) && (fltr_rw debug attr c2 row)
     | Or (c1, c2) -> (fltr_rw debug attr c1 row) || (fltr_rw debug attr c2 row)
-    | In (Attrs a, op) -> let table = eval debug op in
-                          let tuple = get_attr_values attr row [] a in
-                         check_in tuple table
     | Not (op) -> not (fltr_rw debug attr op row)
 
 and eval debug = fun op ->
   let _ = if false then Printf.printf "Evaluating %s\n\n" (Algebra.show op) in
   begin match op with
   | File (d, id) -> let _ = if debug then Printf.printf "Loading file %s\n" d in
-                        let l = read_csv (String.sub d 1 (String.length d - 2)) in
-                        let _ = if debug then Printf.printf "File looks like :\n %s\n" (show_instance l) in
-                        let attr, inst = List.hd (l), List.tl (l) in
+                        let attr, inst = read_csv (String.sub d 1 (String.length d - 2)) in
                         let tab = create_table (create_attr id attr) inst id in
                         let _ = if debug then Printf.printf "Table looks like :\n%s\n\n" (show_table tab) in
                         tab
@@ -143,9 +134,9 @@ and eval debug = fun op ->
 
   | ReadSelectProjectRename ((d, id), cond, proj) ->
 
-        let l = read_csv (String.sub d 1 (String.length d - 2)) in
-        let attr = create_attr id (List.hd (l)) in
-	let inst = List.map (drop_row proj attr) (List.tl (l)) in
+        let attr, inst = read_csv (String.sub d 1 (String.length d - 2)) in
+        let attr = create_attr id attr in
+	let inst = List.map (drop_row proj attr) inst in
         let attr = drop_attr proj attr in
 	let inst = List.filter (fltr_rw debug attr cond) inst in
           create_table attr inst "dummy"

@@ -8,9 +8,13 @@ type value =
   | String of string
 [@@deriving show]
 
+let show_value = function
+    | Num x -> string_of_int x
+    | String s -> s
+
 let value_of_string s =
   try Num (int_of_string s)
-  with Failure _ -> String s
+  with _ -> String s
 
 type table =
   { mutable attr : Ast.attr_bind list;
@@ -22,7 +26,7 @@ type instance = value list list [@@deriving show]
 
 let create_table attr inst name =
     { attr = attr;
-      inst = List.map (List.map value_of_string) inst;
+      inst = inst;
       id = name }
 
 let rec create_attr id = function
@@ -32,7 +36,9 @@ let rec create_attr id = function
 let read_csv filename =
   let ic = of_channel (open_in filename) in
   let csv_file = input_all ic in
-  let _ = close_in ic in csv_file
+  let _ = close_in ic in 
+      (List.hd csv_file, List.map (List.map value_of_string) (List.tl csv_file))
+ 
 
 let write_to_csv data filename =
   let oc = to_channel (open_out filename) in

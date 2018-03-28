@@ -3,7 +3,7 @@
 open Ast
 open Data
 
-type row = string list [@@deriving show]
+type row = value list [@@deriving show]
 type index = bool list [@@deriving show]
 
 let rec is_in_column tuple = function
@@ -58,7 +58,7 @@ let rec get_val (attr : attr_bind list) row (a : attr_bind) = match (attr, row) 
     | ((_, Some al) :: _, el :: _) when Some al = (snd a) -> el
     | (_ :: attr', _ :: r) -> get_val attr' r a
 
-let rec get_attr_values attr row acc = function
+let rec get_attr_values  attr row acc : (_ -> Data.value list) = function
     | [] -> List.rev acc
     | x :: xs -> let v = get_val attr row x in
                  get_attr_values attr row (v :: acc) xs   
