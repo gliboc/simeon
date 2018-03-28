@@ -14,7 +14,7 @@ let value_of_string s =
 
 type table =
   { mutable attr : Ast.attr_bind list;
-    mutable inst : string list list;
+    mutable inst : value list list;
     mutable id : string}
 [@@deriving show]
 
@@ -38,4 +38,4 @@ let write_to_csv data filename =
   let oc = to_channel (open_out filename) in
   let _ = output_all oc data in close_out oc
 
-let rec pprint_data d = List.iter (fun x -> print_endline (String.concat x))
+let rec pprint_data = List.iter (fun x -> print_endline (String.concat " " (List.map show_value x)))
