@@ -14,7 +14,7 @@ let value_of_string s =
 
 type table =
   { mutable attr : Ast.attr_bind list;
-    mutable inst : string list list;
+    mutable inst : value list list;
     mutable id : string}
 [@@deriving show]
 
