@@ -54,7 +54,9 @@ let rec in_to_join r (p, q) = match bubble q with
 
 (* take a query and return one without IN operator *)
 and bubble = function
+  | UnionAll (q1, q2) -> UnionAll (bubble q1, bubble q2)
   | Union (q1, q2) -> Union (bubble q1, bubble q2)
+  | Order (p, q, b) -> Order (p, bubble q, b)
   | Minus (q1, q2) -> Minus (bubble q1, bubble q2)
   | Select (p, r, None) -> Select (p, r, None)
   | Select (p, r, Some c) ->

@@ -16,7 +16,7 @@ let rec c_cond debug = function
     | Eq (e1, e2) -> Eq (e1, e2)
     | Lt (e1, e2) -> Lt (e1, e2)
     | Not c -> Not (c_cond debug c)
-    | In (e, q) -> In (e, compile debug q)
+    | In (e, q) -> failwith "no IN allowed in algebra"
 
 and c_rel : (bool -> Ast.rel -> Algebra.t) = fun debug -> function
     | Query (q, id) -> Rename (compile debug q, id)

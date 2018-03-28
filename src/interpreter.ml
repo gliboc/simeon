@@ -6,10 +6,10 @@ open Utils
 
 let eval_expr attrs (row : Data.value list) : (_ -> Data.value) = fun x ->
     let rec compute a b op : Data.value =
- 	let ae = aux a in
-	let be = aux b in 
-	match (ae, be) with
-           | (Num x, Num y) -> Num (op x y)               
+    let ae = aux a in
+    let be = aux b in 
+    match (ae, be) with
+           | (Num x, Num y) -> Num (op x y)
            | _ -> failwith "Type error"
     and aux : (_ -> Data.value) = function
     | Add (a, b) -> compute a b (+)
@@ -19,9 +19,8 @@ let eval_expr attrs (row : Data.value list) : (_ -> Data.value) = fun x ->
     | Num n -> Num n
     | Attr a -> get_val attrs row a
     | String s -> String s
-    | _ -> failwith "Type error"
     in aux x
-                        
+
 let rec fltr debug attr a1 a2 cmp row =
     let (a, a') = (get_val attr row a1, get_val attr row a2) in
     cmp a a'
@@ -31,6 +30,7 @@ and fltr_cst debug attr a1 cst cmp row =
         cmp k cst
 
 and fltr_rw debug attr c (row : Data.value list) = match c with
+    | In _ -> failwith "IN operator not allowed in algebra"
     | Eq (e1, e2) -> (=) (eval_expr attr row e1) (eval_expr attr row e2)
     | Lt (e1, e2) -> (<) (eval_expr attr row e1) (eval_expr attr row e2)
     | And (c1, c2) -> (fltr_rw debug attr c1 row) && (fltr_rw debug attr c2 row)
